@@ -8,6 +8,7 @@ pub struct MatrixF32{
 }
 impl MatrixF32{
   pub fn new(m:u32,n:u32)->Self {
+    assert!(m>0 && n>0);
     let mut v = Vec::new();
     v.resize((m*n) as usize,0.0);
     Self{m:m,n:n,data:v}
@@ -21,10 +22,10 @@ impl TMatrix<'_,f32> for MatrixF32{
     self.n
   }
   fn get(&self,i:u32,j:u32)->&f32{
-    &self.data[(i*self.m +j) as usize]
+    &self.data[(i*self.n +j) as usize]
   }
   fn get_mut(&mut self,i:u32,j:u32)->&mut f32{
-    &mut self.data[(i*self.m +j) as usize]
+    &mut self.data[(i*self.n +j) as usize]
   }
 }
 impl Sub for &mut MatrixF32{

@@ -14,6 +14,7 @@ pub trait TMatrix<'a,T:Add<Output=T>+Sub<Output=T>+Clone+Default+'a>:Add<&'a Mat
 }
 impl <T:Default+Clone+Add<Output=T>+Sub<Output=T>> Matrix<T> {
   pub fn new(m:u32,n:u32)->Self {
+    assert!(m>0 && n>0);
     let mut v = Vec::new();
     v.resize((m*n) as usize,T::default());
     Self{m:m,n:n,data:v}
@@ -30,7 +31,7 @@ impl<'a,T:Add<Output=T>+Sub<Output=T>+Clone+Copy+Default+'a> TMatrix<'a,T> for M
     &self.data[(i*self.m +j) as usize]
   }
   fn get_mut(&mut self,i:u32,j:u32)->&mut T{
-    &mut self.data[(i*self.m +j) as usize]
+    &mut self.data[(i*self.n +j) as usize]
   }
 }
 impl <'a,T: Add<Output=T>+Clone+Copy+Default+Sub<Output=T>> Add for &'a Matrix<T>{
