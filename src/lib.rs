@@ -28,7 +28,7 @@ impl<'a,T:Add<Output=T>+Sub<Output=T>+Clone+Copy+Default+'a> TMatrix<'a,T> for M
     self.n
   }
   fn get(&self,i:u32,j:u32)->&T{
-    &self.data[(i*self.m +j) as usize]
+    &self.data[(i*self.n +j) as usize]
   }
   fn get_mut(&mut self,i:u32,j:u32)->&mut T{
     &mut self.data[(i*self.n +j) as usize]

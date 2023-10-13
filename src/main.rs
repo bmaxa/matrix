@@ -29,6 +29,9 @@ fn main(){
   println!("before");
   pf(&tst);
   let rc = &tst+&tst;
+  let sc = &tst+&tst-&tst;
   println!("after");
   pf(&rc);
+  println!("sub");
+  pf(&sc);
 }

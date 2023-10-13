@@ -28,27 +28,39 @@ impl TMatrix<'_,f32> for MatrixF32{
     &mut self.data[(i*self.n +j) as usize]
   }
 }
-impl Sub for &mut MatrixF32{
-  type Output = Self;
-  fn sub(self,rhs:Self)->Self{
+impl Sub for &MatrixF32{
+  type Output = MatrixF32;
+  fn sub(self,rhs:Self)->Self::Output{
     todo!()
   }
 }
-impl Add for &mut MatrixF32{
-  type Output = Self;
-  fn add(self,rhs:Self)->Self{
+impl Add for &MatrixF32{
+  type Output = MatrixF32;
+  fn add(self,rhs:Self)->Self::Output{
+    todo!()
+  }
+}
+impl Sub<&MatrixF32> for MatrixF32{
+  type Output = MatrixF32;
+  fn sub(self,rhs:&Self)->Self::Output{
+    todo!()
+  }
+}
+impl Add<&MatrixF32> for MatrixF32{
+  type Output = MatrixF32;
+  fn add(self,rhs:&Self)->Self::Output{
     todo!()
   }
 }
 impl Sub<&Matrix<f32>> for &MatrixF32{
-  type Output = Self;
-  fn sub(self,rhs:&Matrix<f32>)->Self{
+  type Output = MatrixF32;
+  fn sub(self,rhs:&Matrix<f32>)->Self::Output{
     todo!()
   }
 }
 impl Add<&Matrix<f32>> for &MatrixF32{
-  type Output = Self;
-  fn add(self,rhs:&Matrix<f32>)->Self{
+  type Output = MatrixF32;
+  fn add(self,rhs:&Matrix<f32>)->Self::Output{
     todo!()
   }
 }
