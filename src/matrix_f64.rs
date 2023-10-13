@@ -44,7 +44,6 @@ impl Add for &MatrixF64{
     let m8 = self.m%8;
     let n8 = self.n%8;
     let mut ctx = amx::AmxCtx::new().unwrap();
-    println!("nd8 {}",nd8);
     if nd8 == 0 {
       for i in 0..self.m {
         for j in 0..self.n {
