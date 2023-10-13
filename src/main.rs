@@ -68,4 +68,36 @@ fn main(){
   pf(&rc);
   println!("sub");
   pf(&sc);
+
+  let mut amxmat = matrix_f32::MatrixF32::new(1000,1000);
+  {
+    for i in 0..1000{
+      for j in 0..1000{
+        *amxmat.get_mut(i,j)=(i+j) as f32;
+      }
+    }
+    let tm = unsafe{init_time()};
+    for _ in 0..1000 {
+      let res = &amxmat+&amxmat-&amxmat+&amxmat;
+    }
+    println!("amx took {}",unsafe{time_me(tm)});
+  }
+  let mut generic = matrix::Matrix::<f32>::new(1000,1000);
+  {
+    for i in 0..1000{
+      for j in 0..1000{
+        *generic.get_mut(i,j)=(i+j) as f32;
+      }
+    }
+    let tm = unsafe{init_time()};
+    for _ in 0..1000 {
+      let res = &generic+&generic-&generic+&generic;
+    }
+    println!("generic took {}",unsafe{time_me(tm)});
+  }
+  for i in 0..1000{
+    for j in 0..1000{
+      if *amxmat.get(i,j)!=*generic.get(i,j) {println!("error");break;}
+    }
+  }
 }
