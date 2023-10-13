@@ -50,7 +50,7 @@ impl Sub for &MatrixF32{
           unsafe {
             ctx.load512(&self.data[(i*self.n+j*16) as usize],ZRow(0));
             ctx.load512(&rhs.data[(i*self.n+j*16) as usize],XRow(0));
-            ctx.fms64_vec_xz(0,0);
+            ctx.fms32_vec_xz(0,0);
             ctx.store512(&mut rc.data[(i*self.n+j*16) as usize],ZRow(0));
           }
         }
@@ -86,7 +86,7 @@ impl Add for &MatrixF32{
           unsafe {
             ctx.load512(&self.data[(i*self.n+j*16) as usize],ZRow(0));
             ctx.load512(&rhs.data[(i*self.n+j*16) as usize],XRow(0));
-            ctx.fma64_vec_xz(0,0);
+            ctx.fma32_vec_xz(0,0);
             ctx.store512(&mut rc.data[(i*self.n+j*16) as usize],ZRow(0));
           }
         }
@@ -122,7 +122,7 @@ impl Sub<&MatrixF32> for MatrixF32{
           unsafe {
             ctx.load512(&self.data[(i*self.n+j*16) as usize],ZRow(0));
             ctx.load512(&rhs.data[(i*self.n+j*16) as usize],XRow(0));
-            ctx.fms64_vec_xz(0,0);
+            ctx.fms32_vec_xz(0,0);
             ctx.store512(&mut rc.data[(i*self.n+j*16) as usize],ZRow(0));
           }
         }
@@ -158,7 +158,7 @@ impl Add<&MatrixF32> for MatrixF32{
           unsafe {
             ctx.load512(&self.data[(i*self.n+j*16) as usize],ZRow(0));
             ctx.load512(&rhs.data[(i*self.n+j*16) as usize],XRow(0));
-            ctx.fma64_vec_xz(0,0);
+            ctx.fma32_vec_xz(0,0);
             ctx.store512(&mut rc.data[(i*self.n+j*16) as usize],ZRow(0));
           }
         }
@@ -194,7 +194,7 @@ impl Sub<&Matrix<f32>> for &MatrixF32{
           unsafe {
             ctx.load512(&self.data[(i*self.n+j*16) as usize],ZRow(0));
             ctx.load512(&rhs.data[(i*self.n+j*16) as usize],XRow(0));
-            ctx.fms64_vec_xz(0,0);
+            ctx.fms32_vec_xz(0,0);
             ctx.store512(&mut rc.data[(i*self.n+j*16) as usize],ZRow(0));
           }
         }
@@ -230,7 +230,7 @@ impl Add<&Matrix<f32>> for &MatrixF32{
           unsafe {
             ctx.load512(&self.data[(i*self.n+j*16) as usize],ZRow(0));
             ctx.load512(&rhs.data[(i*self.n+j*16) as usize],XRow(0));
-            ctx.fma64_vec_xz(0,0);
+            ctx.fma32_vec_xz(0,0);
             ctx.store512(&mut rc.data[(i*self.n+j*16) as usize],ZRow(0));
           }
         }
@@ -266,7 +266,7 @@ impl Sub<&Matrix<f32>> for MatrixF32{
           unsafe {
             ctx.load512(&self.data[(i*self.n+j*16) as usize],ZRow(0));
             ctx.load512(&rhs.data[(i*self.n+j*16) as usize],XRow(0));
-            ctx.fms64_vec_xz(0,0);
+            ctx.fms32_vec_xz(0,0);
             ctx.store512(&mut rc.data[(i*self.n+j*16) as usize],ZRow(0));
           }
         }
@@ -302,7 +302,7 @@ impl Add<&Matrix<f32>> for MatrixF32{
           unsafe {
             ctx.load512(&self.data[(i*self.n+j*16) as usize],ZRow(0));
             ctx.load512(&rhs.data[(i*self.n+j*16) as usize],XRow(0));
-            ctx.fma64_vec_xz(0,0);
+            ctx.fma32_vec_xz(0,0);
             ctx.store512(&mut rc.data[(i*self.n+j*16) as usize],ZRow(0));
           }
         }
