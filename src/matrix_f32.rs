@@ -31,48 +31,288 @@ impl TMatrix<'_,f32> for MatrixF32{
 impl Sub for &MatrixF32{
   type Output = MatrixF32;
   fn sub(self,rhs:Self)->Self::Output{
-    todo!()
+    assert!(self.m == rhs.m && self.n == rhs.n);
+    let mut rc = MatrixF32::new(self.m,self.n);
+    let md8 = self.m/16;
+    let nd8 = self.n/16;
+    let m8 = self.m%16;
+    let n8 = self.n%16;
+    let mut ctx = amx::AmxCtx::new().unwrap();
+    if nd8 == 0 {
+      for i in 0..self.m {
+        for j in 0..self.n {
+          rc.data[(i*self.n+j)as usize] = self.data[(i*self.n+j)as usize]-rhs.data[(i*self.n+j)as usize];
+        }
+      }
+    } else {
+      for i in 0..self.m {
+        for j in 0..nd8 {
+          unsafe {
+            ctx.load512(&self.data[(i*self.n+j*16) as usize],ZRow(0));
+            ctx.load512(&rhs.data[(i*self.n+j*16) as usize],XRow(0));
+            ctx.fms64_vec_xz(0,0);
+            ctx.store512(&mut rc.data[(i*self.n+j*16) as usize],ZRow(0));
+          }
+        }
+      }
+      for i in 0..self.m {
+        for j in nd8*8..self.n {
+          rc.data[(i*self.n+j) as usize]= self.data[(i*self.n+j) as usize] - rhs.data[(i*self.n+j) as usize];
+        }
+      }
+    }
+    rc
   }
 }
 impl Add for &MatrixF32{
   type Output = MatrixF32;
   fn add(self,rhs:Self)->Self::Output{
-    todo!()
+    assert!(self.m == rhs.m && self.n == rhs.n);
+    let mut rc = MatrixF32::new(self.m,self.n);
+    let md8 = self.m/16;
+    let nd8 = self.n/16;
+    let m8 = self.m%16;
+    let n8 = self.n%16;
+    let mut ctx = amx::AmxCtx::new().unwrap();
+    if nd8 == 0 {
+      for i in 0..self.m {
+        for j in 0..self.n {
+          rc.data[(i*self.n+j)as usize] = self.data[(i*self.n+j)as usize]+rhs.data[(i*self.n+j)as usize];
+        }
+      }
+    } else {
+      for i in 0..self.m {
+        for j in 0..nd8 {
+          unsafe {
+            ctx.load512(&self.data[(i*self.n+j*16) as usize],ZRow(0));
+            ctx.load512(&rhs.data[(i*self.n+j*16) as usize],XRow(0));
+            ctx.fma64_vec_xz(0,0);
+            ctx.store512(&mut rc.data[(i*self.n+j*16) as usize],ZRow(0));
+          }
+        }
+      }
+      for i in 0..self.m {
+        for j in nd8*8..self.n {
+          rc.data[(i*self.n+j) as usize]= self.data[(i*self.n+j) as usize] + rhs.data[(i*self.n+j) as usize];
+        }
+      }
+    }
+    rc
   }
 }
 impl Sub<&MatrixF32> for MatrixF32{
   type Output = MatrixF32;
   fn sub(self,rhs:&Self)->Self::Output{
-    todo!()
+    assert!(self.m == rhs.m && self.n == rhs.n);
+    let mut rc = MatrixF32::new(self.m,self.n);
+    let md8 = self.m/16;
+    let nd8 = self.n/16;
+    let m8 = self.m%16;
+    let n8 = self.n%16;
+    let mut ctx = amx::AmxCtx::new().unwrap();
+    if nd8 == 0 {
+      for i in 0..self.m {
+        for j in 0..self.n {
+          rc.data[(i*self.n+j)as usize] = self.data[(i*self.n+j)as usize]-rhs.data[(i*self.n+j)as usize];
+        }
+      }
+    } else {
+      for i in 0..self.m {
+        for j in 0..nd8 {
+          unsafe {
+            ctx.load512(&self.data[(i*self.n+j*16) as usize],ZRow(0));
+            ctx.load512(&rhs.data[(i*self.n+j*16) as usize],XRow(0));
+            ctx.fms64_vec_xz(0,0);
+            ctx.store512(&mut rc.data[(i*self.n+j*16) as usize],ZRow(0));
+          }
+        }
+      }
+      for i in 0..self.m {
+        for j in nd8*8..self.n {
+          rc.data[(i*self.n+j) as usize]= self.data[(i*self.n+j) as usize] - rhs.data[(i*self.n+j) as usize];
+        }
+      }
+    }
+    rc
   }
 }
 impl Add<&MatrixF32> for MatrixF32{
   type Output = MatrixF32;
   fn add(self,rhs:&Self)->Self::Output{
-    todo!()
+    assert!(self.m == rhs.m && self.n == rhs.n);
+    let mut rc = MatrixF32::new(self.m,self.n);
+    let md8 = self.m/16;
+    let nd8 = self.n/16;
+    let m8 = self.m%16;
+    let n8 = self.n%16;
+    let mut ctx = amx::AmxCtx::new().unwrap();
+    if nd8 == 0 {
+      for i in 0..self.m {
+        for j in 0..self.n {
+          rc.data[(i*self.n+j)as usize] = self.data[(i*self.n+j)as usize]+rhs.data[(i*self.n+j)as usize];
+        }
+      }
+    } else {
+      for i in 0..self.m {
+        for j in 0..nd8 {
+          unsafe {
+            ctx.load512(&self.data[(i*self.n+j*16) as usize],ZRow(0));
+            ctx.load512(&rhs.data[(i*self.n+j*16) as usize],XRow(0));
+            ctx.fma64_vec_xz(0,0);
+            ctx.store512(&mut rc.data[(i*self.n+j*16) as usize],ZRow(0));
+          }
+        }
+      }
+      for i in 0..self.m {
+        for j in nd8*8..self.n {
+          rc.data[(i*self.n+j) as usize]= self.data[(i*self.n+j) as usize] + rhs.data[(i*self.n+j) as usize];
+        }
+      }
+    }
+    rc
   }
 }
 impl Sub<&Matrix<f32>> for &MatrixF32{
   type Output = MatrixF32;
   fn sub(self,rhs:&Matrix<f32>)->Self::Output{
-    todo!()
+    assert!(self.m == rhs.m && self.n == rhs.n);
+    let mut rc = MatrixF32::new(self.m,self.n);
+    let md8 = self.m/16;
+    let nd8 = self.n/16;
+    let m8 = self.m%16;
+    let n8 = self.n%16;
+    let mut ctx = amx::AmxCtx::new().unwrap();
+    if nd8 == 0 {
+      for i in 0..self.m {
+        for j in 0..self.n {
+          rc.data[(i*self.n+j)as usize] = self.data[(i*self.n+j)as usize]-rhs.data[(i*self.n+j)as usize];
+        }
+      }
+    } else {
+      for i in 0..self.m {
+        for j in 0..nd8 {
+          unsafe {
+            ctx.load512(&self.data[(i*self.n+j*16) as usize],ZRow(0));
+            ctx.load512(&rhs.data[(i*self.n+j*16) as usize],XRow(0));
+            ctx.fms64_vec_xz(0,0);
+            ctx.store512(&mut rc.data[(i*self.n+j*16) as usize],ZRow(0));
+          }
+        }
+      }
+      for i in 0..self.m {
+        for j in nd8*8..self.n {
+          rc.data[(i*self.n+j) as usize]= self.data[(i*self.n+j) as usize] - rhs.data[(i*self.n+j) as usize];
+        }
+      }
+    }
+    rc
   }
 }
 impl Add<&Matrix<f32>> for &MatrixF32{
   type Output = MatrixF32;
   fn add(self,rhs:&Matrix<f32>)->Self::Output{
-    todo!()
+    assert!(self.m == rhs.m && self.n == rhs.n);
+    let mut rc = MatrixF32::new(self.m,self.n);
+    let md8 = self.m/16;
+    let nd8 = self.n/16;
+    let m8 = self.m%16;
+    let n8 = self.n%16;
+    let mut ctx = amx::AmxCtx::new().unwrap();
+    if nd8 == 0 {
+      for i in 0..self.m {
+        for j in 0..self.n {
+          rc.data[(i*self.n+j)as usize] = self.data[(i*self.n+j)as usize]+rhs.data[(i*self.n+j)as usize];
+        }
+      }
+    } else {
+      for i in 0..self.m {
+        for j in 0..nd8 {
+          unsafe {
+            ctx.load512(&self.data[(i*self.n+j*16) as usize],ZRow(0));
+            ctx.load512(&rhs.data[(i*self.n+j*16) as usize],XRow(0));
+            ctx.fma64_vec_xz(0,0);
+            ctx.store512(&mut rc.data[(i*self.n+j*16) as usize],ZRow(0));
+          }
+        }
+      }
+      for i in 0..self.m {
+        for j in nd8*8..self.n {
+          rc.data[(i*self.n+j) as usize]= self.data[(i*self.n+j) as usize] + rhs.data[(i*self.n+j) as usize];
+        }
+      }
+    }
+    rc
   }
 }
 impl Sub<&Matrix<f32>> for MatrixF32{
   type Output = Self;
   fn sub(self,rhs:&Matrix<f32>)->Self{
-    todo!()
+    assert!(self.m == rhs.m && self.n == rhs.n);
+    let mut rc = MatrixF32::new(self.m,self.n);
+    let md8 = self.m/16;
+    let nd8 = self.n/16;
+    let m8 = self.m%16;
+    let n8 = self.n%16;
+    let mut ctx = amx::AmxCtx::new().unwrap();
+    if nd8 == 0 {
+      for i in 0..self.m {
+        for j in 0..self.n {
+          rc.data[(i*self.n+j)as usize] = self.data[(i*self.n+j)as usize]-rhs.data[(i*self.n+j)as usize];
+        }
+      }
+    } else {
+      for i in 0..self.m {
+        for j in 0..nd8 {
+          unsafe {
+            ctx.load512(&self.data[(i*self.n+j*16) as usize],ZRow(0));
+            ctx.load512(&rhs.data[(i*self.n+j*16) as usize],XRow(0));
+            ctx.fms64_vec_xz(0,0);
+            ctx.store512(&mut rc.data[(i*self.n+j*16) as usize],ZRow(0));
+          }
+        }
+      }
+      for i in 0..self.m {
+        for j in nd8*8..self.n {
+          rc.data[(i*self.n+j) as usize]= self.data[(i*self.n+j) as usize] - rhs.data[(i*self.n+j) as usize];
+        }
+      }
+    }
+    rc
   }
 }
 impl Add<&Matrix<f32>> for MatrixF32{
   type Output = Self;
   fn add(self,rhs:&Matrix<f32>)->Self{
-    todo!()
+    assert!(self.m == rhs.m && self.n == rhs.n);
+    let mut rc = MatrixF32::new(self.m,self.n);
+    let md8 = self.m/16;
+    let nd8 = self.n/16;
+    let m8 = self.m%16;
+    let n8 = self.n%16;
+    let mut ctx = amx::AmxCtx::new().unwrap();
+    if nd8 == 0 {
+      for i in 0..self.m {
+        for j in 0..self.n {
+          rc.data[(i*self.n+j)as usize] = self.data[(i*self.n+j)as usize]+rhs.data[(i*self.n+j)as usize];
+        }
+      }
+    } else {
+      for i in 0..self.m {
+        for j in 0..nd8 {
+          unsafe {
+            ctx.load512(&self.data[(i*self.n+j*16) as usize],ZRow(0));
+            ctx.load512(&rhs.data[(i*self.n+j*16) as usize],XRow(0));
+            ctx.fma64_vec_xz(0,0);
+            ctx.store512(&mut rc.data[(i*self.n+j*16) as usize],ZRow(0));
+          }
+        }
+      }
+      for i in 0..self.m {
+        for j in nd8*8..self.n {
+          rc.data[(i*self.n+j) as usize]= self.data[(i*self.n+j) as usize] + rhs.data[(i*self.n+j) as usize];
+        }
+      }
+    }
+    rc
   }
 }
