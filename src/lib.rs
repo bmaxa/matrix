@@ -10,6 +10,9 @@ pub trait TMatrix<'a,T:Add<Output=T>+Sub<Output=T>+Clone+Default+'a>:Add<&'a Mat
   fn m(&self)->u32;
   fn n(&self)->u32;
   fn get(&self,i:u32,j:u32)->&T;
+  //fn get_mut(&mut self,i:u32,j:u32)->&mut T;
+}
+pub trait TMatrixMut<'a,T:Add<Output=T>+Sub<Output=T>+Clone+Default+'a>:TMatrix<'a,T>{
   fn get_mut(&mut self,i:u32,j:u32)->&mut T;
 }
 impl <T:Default+Clone+Add<Output=T>+Sub<Output=T>> Matrix<T> {
@@ -30,6 +33,19 @@ impl<'a,T:Add<Output=T>+Sub<Output=T>+Clone+Copy+Default+'a> TMatrix<'a,T> for M
   fn get(&self,i:u32,j:u32)->&T{
     &self.data[(i*self.n +j) as usize]
   }
+}
+impl<'a,T:Add<Output=T>+Sub<Output=T>+Clone+Copy+Default+'a> TMatrix<'a,T> for &'a Matrix<T>{
+  fn m(&self)->u32{
+    self.m
+  }
+  fn n(&self)->u32{
+    self.n
+  }
+  fn get(&self,i:u32,j:u32)->&T{
+    &self.data[(i*self.n +j) as usize]
+  }
+}
+impl<'a,T:Add<Output=T>+Sub<Output=T>+Clone+Copy+Default+'a> TMatrixMut<'a,T> for Matrix<T>{
   fn get_mut(&mut self,i:u32,j:u32)->&mut T{
     &mut self.data[(i*self.n +j) as usize]
   }

@@ -1,5 +1,5 @@
 use matrix;
-use matrix::{TMatrix,matrix_f64,matrix_f32};
+use matrix::{TMatrix,TMatrixMut,matrix_f64,matrix_f32};
 extern {
   fn init_time()->u64;
   fn time_me(tm:u64)->f64;
@@ -68,7 +68,6 @@ fn main(){
   pf(&rc);
   println!("sub");
   pf(&sc);
-
   let mut amxmat = matrix_f32::MatrixF32::new(1000,1000);
   {
     for i in 0..1000{
@@ -77,10 +76,16 @@ fn main(){
       }
     }
     let tm = unsafe{init_time()};
+    let mut res=matrix_f32::MatrixF32::new(1000,1000);
     for _ in 0..1000 {
-      let res = &amxmat+&amxmat-&amxmat+&amxmat;
+        res = &amxmat+&amxmat-&amxmat+&amxmat;
     }
     println!("amx took {}",unsafe{time_me(tm)});
+    for i in 0..1000 {
+      for j in 0..1000 {
+        *amxmat.get_mut(i,j) = *res.get(i,j);
+      }
+    }
   }
   let mut generic = matrix::Matrix::<f32>::new(1000,1000);
   {
@@ -90,10 +95,16 @@ fn main(){
       }
     }
     let tm = unsafe{init_time()};
+    let mut res=matrix::Matrix::<f32>::new(1000,1000);
     for _ in 0..1000 {
-      let res = &generic+&generic-&generic+&generic;
+      res = &generic+&generic-&generic+&generic;
     }
     println!("generic took {}",unsafe{time_me(tm)});
+    for i in 0..1000 {
+      for j in 0..1000 {
+        *generic.get_mut(i,j) = *res.get(i,j);
+      }
+    }
   }
   for i in 0..1000{
     for j in 0..1000{
