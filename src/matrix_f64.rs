@@ -92,10 +92,10 @@ impl Add<&Matrix<f64>> for MatrixF64{
 fn op<'a,const OP:char>(lhs:impl TMatrix<'a, f64>,rhs:impl TMatrix<'a,f64>)->MatrixF64{
     assert!(lhs.m() == rhs.m() && lhs.n() == rhs.n());
     let mut rc = MatrixF64::new(lhs.m(),lhs.n());
-    let md8 = lhs.m()/8;
+    let _md8 = lhs.m()/8;
     let nd8 = lhs.n()/8;
-    let m8 = lhs.m()%8;
-    let n8 = lhs.n()%8;
+    let _m8 = lhs.m()%8;
+    let _n8 = lhs.n()%8;
     let mut ctx = amx::AmxCtx::new().unwrap();
     if nd8 == 0 {
       for i in 0..lhs.m() {

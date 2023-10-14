@@ -92,10 +92,10 @@ impl Add<&Matrix<f32>> for MatrixF32{
 fn op<'a,const OP:char>(lhs:impl TMatrix<'a, f32>,rhs:impl TMatrix<'a,f32>)->MatrixF32{
     assert!(lhs.m() == rhs.m() && lhs.n() == rhs.n());
     let mut rc = MatrixF32::new(lhs.m(),lhs.n());
-    let md8 = lhs.m()/16;
+    let _md8 = lhs.m()/16;
     let nd8 = lhs.n()/16;
-    let m8 = lhs.m()%16;
-    let n8 = lhs.n()%16;
+    let _m8 = lhs.m()%16;
+    let _n8 = lhs.n()%16;
     let mut ctx = amx::AmxCtx::new().unwrap();
     if nd8 == 0 {
       for i in 0..lhs.m() {
