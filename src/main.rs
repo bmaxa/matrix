@@ -68,47 +68,99 @@ fn main(){
   pf(&rc);
   println!("sub");
   pf(&sc);
-  let mut amxmat = matrix_f32::MatrixF32::new(1000,1000);
+  fn f<'a>(m:impl matrix::TMatrix<'a,f64>) {
+    for i in 0..m.m() {
+      for j in 0..m.n() {
+        print!(" {}",m.get(i,j));
+      }
+      println!("");
+    }
+  }
+  const DIM:u32 = 1000;
+  let mut amxmat = matrix_f32::MatrixF32::new(DIM,DIM);
   {
-    for i in 0..1000{
-      for j in 0..1000{
-        *amxmat.get_mut(i,j)=(i+j) as f32;
+    for i in 0..DIM{
+      for j in 0..DIM{
+        *amxmat.get_mut(i,j)=1 as f32;
       }
     }
     let tm = unsafe{init_time()};
-    let mut res=matrix_f32::MatrixF32::new(1000,1000);
-    for _ in 0..1000 {
-        res = &amxmat+&amxmat-&amxmat+&amxmat;
+    let mut res=matrix_f32::MatrixF32::new(1,1);
+    for _ in 0..10 {
+        res = &amxmat+&amxmat-&(&amxmat*&amxmat);
     }
     println!("amx took {}",unsafe{time_me(tm)});
-    for i in 0..1000 {
-      for j in 0..1000 {
+    for i in 0..DIM {
+      for j in 0..DIM {
         *amxmat.get_mut(i,j) = *res.get(i,j);
       }
     }
   }
-  let mut generic = matrix::Matrix::<f32>::new(1000,1000);
+  let mut generic = matrix::Matrix::<f32>::new(DIM,DIM);
   {
-    for i in 0..1000{
-      for j in 0..1000{
-        *generic.get_mut(i,j)=(i+j) as f32;
+    for i in 0..DIM{
+      for j in 0..DIM{
+        *generic.get_mut(i,j)=1 as f32;
       }
     }
     let tm = unsafe{init_time()};
-    let mut res=matrix::Matrix::<f32>::new(1000,1000);
-    for _ in 0..1000 {
-      res = &generic+&generic-&generic+&generic;
+    let mut res=matrix::Matrix::<f32>::new(1,1);
+    for _ in 0..10 {
+      res = &generic+&generic-&(&generic*&generic);
     }
     println!("generic took {}",unsafe{time_me(tm)});
-    for i in 0..1000 {
-      for j in 0..1000 {
+    for i in 0..DIM {
+      for j in 0..DIM {
         *generic.get_mut(i,j) = *res.get(i,j);
       }
     }
   }
-  for i in 0..1000{
-    for j in 0..1000{
+  for i in 0..DIM{
+    for j in 0..DIM{
       if *amxmat.get(i,j)!=*generic.get(i,j) {println!("error");break;}
     }
   }
+  /*println!("amxmat");
+  f(&amxmat);
+  println!("generic");
+  f(&generic);*/
+
+  let mut generic1 = matrix::Matrix::<f64>::new(4,3);
+  let mut generic2 = matrix::Matrix::<f64>::new(3,2);
+  for i in 0..generic1.m() {
+    for j in 0..generic1.n() {
+      *generic1.get_mut(i,j) = (i+j) as f64;
+    }
+  }
+  println!("mat 1");
+  f(&generic1);
+  for i in 0..generic2.m() {
+    for j in 0..generic2.n() {
+      *generic2.get_mut(i,j) = (i+j) as f64;
+    }
+  }
+  println!("mat 2");
+  f(&generic2);
+  let res = &generic1 * &generic2;
+  println!("mult");
+  f(&res);
+  let mut f64_1 = matrix_f64::MatrixF64::new(4,3);
+  let mut f64_2 = matrix_f64::MatrixF64::new(3,2);
+  for i in 0..f64_1.m() {
+    for j in 0..f64_1.n() {
+      *f64_1.get_mut(i,j) = (i+j) as f64;
+    }
+  }
+  println!("amx mat 1");
+  f(&f64_1);
+  for i in 0..f64_2.m() {
+    for j in 0..f64_2.n() {
+      *f64_2.get_mut(i,j) = (i+j) as f64;
+    }
+  }
+  println!("amx mat 2");
+  f(&f64_2);
+  let res = &f64_1 * &f64_2;
+  println!("amx mult");
+  f(&res);
 }
