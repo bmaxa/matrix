@@ -189,8 +189,8 @@ fn op<'a,const OP:char>(lhs:impl TMatrix<'a, f32>,rhs:impl TMatrix<'a,f32>)->Mat
                 for k in 0..rhs.m() {
                   ctx.load512(lhs.get(k,j*16),YRow(0));
                   ctx.fma32_vec_xy(0,0,0,0);
-                  ctx.extr_xh(0,0);
-                  ctx.fma32_vec_xz(1,0);
+                  ctx.extr_xh(0,1);
+                  ctx.fma32_vec_xz(1,1);
                 }
                 ctx.store512(rc.get_mut(i,j*16),ZRow(1));
               }

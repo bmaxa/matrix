@@ -68,7 +68,15 @@ fn main(){
   pf(&rc);
   println!("sub");
   pf(&sc);
-  fn f<'a>(m:impl matrix::TMatrix<'a,f64>) {
+  fn f1<'a>(m:impl matrix::TMatrix<'a,f32>) {
+    for i in 0..m.m() {
+      for j in 0..m.n() {
+        print!(" {}",m.get(i,j));
+      }
+      println!("");
+    }
+  }
+  fn f2<'a>(m:impl matrix::TMatrix<'a,f64>) {
     for i in 0..m.m() {
       for j in 0..m.n() {
         print!(" {}",m.get(i,j));
@@ -81,7 +89,7 @@ fn main(){
   {
     for i in 0..DIM{
       for j in 0..DIM{
-        *amxmat.get_mut(i,j)=1 as f32;
+        *amxmat.get_mut(i,j)=i as f32;
       }
     }
     let tm = unsafe{init_time()};
@@ -100,7 +108,7 @@ fn main(){
   {
     for i in 0..DIM{
       for j in 0..DIM{
-        *generic.get_mut(i,j)=1 as f32;
+        *generic.get_mut(i,j)=i as f32;
       }
     }
     let tm = unsafe{init_time()};
@@ -121,9 +129,9 @@ fn main(){
     }
   }
   /*println!("amxmat");
-  f(&amxmat);
+  f1(&amxmat);
   println!("generic");
-  f(&generic);*/
+  f1(&generic);*/
 
   let mut generic1 = matrix::Matrix::<f64>::new(4,3);
   let mut generic2 = matrix::Matrix::<f64>::new(3,2);
@@ -133,17 +141,17 @@ fn main(){
     }
   }
   println!("mat 1");
-  f(&generic1);
+  f2(&generic1);
   for i in 0..generic2.m() {
     for j in 0..generic2.n() {
       *generic2.get_mut(i,j) = (i+j) as f64;
     }
   }
   println!("mat 2");
-  f(&generic2);
+  f2(&generic2);
   let res = &generic1 * &generic2;
   println!("mult");
-  f(&res);
+  f2(&res);
   let mut f64_1 = matrix_f64::MatrixF64::new(4,3);
   let mut f64_2 = matrix_f64::MatrixF64::new(3,2);
   for i in 0..f64_1.m() {
@@ -152,15 +160,15 @@ fn main(){
     }
   }
   println!("amx mat 1");
-  f(&f64_1);
+  f2(&f64_1);
   for i in 0..f64_2.m() {
     for j in 0..f64_2.n() {
       *f64_2.get_mut(i,j) = (i+j) as f64;
     }
   }
   println!("amx mat 2");
-  f(&f64_2);
+  f2(&f64_2);
   let res = &f64_1 * &f64_2;
   println!("amx mult");
-  f(&res);
+  f2(&res);
 }
