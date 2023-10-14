@@ -10,7 +10,6 @@ pub trait TMatrix<'a,T:Add<Output=T>+Sub<Output=T>+Clone+Default+'a>:Add<&'a Mat
   fn m(&self)->u32;
   fn n(&self)->u32;
   fn get(&self,i:u32,j:u32)->&T;
-  //fn get_mut(&mut self,i:u32,j:u32)->&mut T;
 }
 pub trait TMatrixMut<'a,T:Add<Output=T>+Sub<Output=T>+Clone+Default+'a>:TMatrix<'a,T>{
   fn get_mut(&mut self,i:u32,j:u32)->&mut T;
@@ -53,48 +52,44 @@ impl<'a,T:Add<Output=T>+Sub<Output=T>+Clone+Copy+Default+'a> TMatrixMut<'a,T> fo
 impl <'a,T: Add<Output=T>+Clone+Copy+Default+Sub<Output=T>> Add for &'a Matrix<T>{
   type Output = Matrix<T>;
   fn add(self,rhs:Self)->Self::Output{
-    let mut rc = Matrix::<T>::new(self.m,self.n);
-    for i in 0..self.m {
-      for j in 0..self.n {
-        *rc.get_mut(i,j) = *self.get(i,j)+*rhs.get(i,j);
-      }
-    }
-    rc
+    op::<'+',T>(self,rhs)
   }
 }
 impl <'a,T: Sub<Output=T>+Clone+Default+Copy + Add<Output=T>> Sub for &'a Matrix<T>{
   type Output = Matrix<T>;
   fn sub(self,rhs:Self)->Self::Output{
-    let mut rc = Matrix::<T>::new(self.m,self.n);
-    for i in 0..self.m {
-      for j in 0..self.n {
-        *rc.get_mut(i,j) = *self.get(i,j)-*rhs.get(i,j);
-      }
-    }
-    rc
+    op::<'-',T>(self,rhs)
   }
 }
 impl <T: Add<Output=T>+Clone+Copy+Default + Sub<Output=T>> Add<&Matrix<T>> for Matrix<T>{
   type Output = Self;
   fn add(self,rhs:&Self)->Self{
-    let mut rc = Matrix::<T>::new(self.m,self.n);
-    for i in 0..self.m {
-      for j in 0..self.n {
-        *rc.get_mut(i,j) = *self.get(i,j)+*rhs.get(i,j);
-      }
-    }
-    rc
+    op::<'+',T>(self,rhs)
   }
 }
 impl <'a,T: Sub<Output=T>+Clone+Copy+Default + Add<Output=T>> Sub<&Matrix<T>> for Matrix<T>{
   type Output = Self;
   fn sub(self,rhs:&Self)->Self{
-    let mut rc = Matrix::<T>::new(self.m,self.n);
-    for i in 0..self.m {
-      for j in 0..self.n {
-        *rc.get_mut(i,j) = *self.get(i,j)-*rhs.get(i,j);
+    op::<'-',T>(self,rhs)
+  }
+}
+fn op<'a,const OP:char,T>(lhs:impl TMatrix<'a,T>,rhs:impl TMatrix<'a,T>)->Matrix<T>
+where
+  T:Default+'a,
+  T:Clone,
+  T:Copy,
+  T:Add<Output=T>,
+  T:Sub<Output=T>
+{
+    let mut rc = Matrix::<T>::new(lhs.m(),lhs.n());
+    for i in 0..lhs.m() {
+      for j in 0..lhs.n() {
+        match OP {
+          '+' => {*rc.get_mut(i,j) = *lhs.get(i,j)+*rhs.get(i,j);}
+          '-' => {*rc.get_mut(i,j) = *lhs.get(i,j)-*rhs.get(i,j);}
+          _ => {}
+        }
       }
     }
     rc
-  }
 }
