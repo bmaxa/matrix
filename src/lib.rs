@@ -81,6 +81,7 @@ where
   T:Add<Output=T>,
   T:Sub<Output=T>
 {
+    assert!(lhs.m() == rhs.m() && lhs.n() == rhs.n());
     let mut rc = Matrix::<T>::new(lhs.m(),lhs.n());
     for i in 0..lhs.m() {
       for j in 0..lhs.n() {
