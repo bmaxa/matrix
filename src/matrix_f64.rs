@@ -125,9 +125,11 @@ fn op<'a,const OP:char>(lhs:impl TMatrix<'a, f64>,rhs:impl TMatrix<'a,f64>)->Mat
     let _m8 = lhs.m()%8;
     let _n8 = lhs.n()%8;
     let rnd8 = rhs.n()/8;
+    let rn8 = rhs.n()%8;
+    let _rm8 = rhs.m()%8;
     let _rmd8 = rhs.m()/8;
     let mut ctx = amx::AmxCtx::new().unwrap();
-    if nd8 == 0 && OP != '*' {
+    if nd8 == 0 {
       match OP {
         '+'|'-' =>
           {
@@ -144,11 +146,9 @@ fn op<'a,const OP:char>(lhs:impl TMatrix<'a, f64>,rhs:impl TMatrix<'a,f64>)->Mat
           '*' => {
             for i in 0..lhs.m() {
               for j in 0..rhs.n() {
-                let mut sum = 0.0;
                 for k in 0..rhs.m() {
-                  sum = sum + *lhs.get(i,k) * *rhs.get(k,j);
+                  *rc.get_mut(i,j) += *lhs.get(i,k) * *rhs.get(k,j);
                 }
-                *rc.get_mut(i,j) = sum;
               }
             }
           }
@@ -184,24 +184,33 @@ fn op<'a,const OP:char>(lhs:impl TMatrix<'a, f64>,rhs:impl TMatrix<'a,f64>)->Mat
             let tmp = [0.0f64;8];
             for i in 0..lhs.m() {
               for j in 0..rnd8 {
+                let mut m = 0;
+                let mut chunk = 0;
                 ctx.load512(&tmp,ZRow(1));
-                ctx.load512(rhs.get(i,j*8),XRow(0));
                 for k in 0..rhs.m() {
-                  ctx.load512(lhs.get(k,j*8),YRow(0));
-                  ctx.fma64_vec_xy(0,0,0,0);
-                  ctx.extr_xh(0,1);
-                  ctx.fma64_vec_xz(1,1);
+                  if m == 0 {
+                    if chunk >= rnd8*8+rn8 {
+                      break
+                    }
+                    ctx.load512(lhs.get(i,chunk),XRow(0));
+                    ctx.extr_yx(0,1);
+                    ctx.fma64_mat_y(0,1);
+                    chunk += 8;
+                  }
+                  ctx.load512(rhs.get(k,j*8),YRow(0));
+                  ctx.extr_xh(m*8,0);
+                  ctx.fma64_vec_xy(2,0,0,0);
+                  ctx.extr_xh(2,0);
+                  ctx.fma64_vec_xz(1,0);
+                  m += 1;
+                  if m == 8 { m=0; }
                 }
-                ctx.store512(rc.get_mut(i,j*8),ZRow(1));
+                ctx.store512(rc.get_mut(i,j*8), ZRow(1));
               }
-            }
-            for i in 0..lhs.m() {
-              for j in nd8*8..rhs.n() {
-                let mut sum =0.0;
-                for k in 0 ..rhs.m() {
-                  sum += *lhs.get(i,k) * *rhs.get(k,j);
+              for j in rnd8*8..rhs.n() {
+                for k in 0..rhs.m() {
+                  *rc.get_mut(i,j) += *lhs.get(i,k) * *rhs.get(k,j);
                 }
-                *rc.get_mut(i,j) += sum;
               }
             }
           }

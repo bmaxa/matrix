@@ -89,7 +89,7 @@ fn main(){
   {
     for i in 0..DIM{
       for j in 0..DIM{
-        *amxmat.get_mut(i,j)=i as f32;
+        *amxmat.get_mut(i,j)=(i+j) as f32;
       }
     }
     let tm = unsafe{init_time()};
@@ -108,7 +108,7 @@ fn main(){
   {
     for i in 0..DIM{
       for j in 0..DIM{
-        *generic.get_mut(i,j)=i as f32;
+        *generic.get_mut(i,j)=(i+j) as f32;
       }
     }
     let tm = unsafe{init_time()};
@@ -128,10 +128,10 @@ fn main(){
       if *amxmat.get(i,j)!=*generic.get(i,j) {println!("error");break;}
     }
   }
-  /*println!("amxmat");
-  f1(&amxmat);
+  println!("amxmat");
+  //f1(&amxmat);
   println!("generic");
-  f1(&generic);*/
+  //f1(&generic);
 
   let mut generic1 = matrix::Matrix::<f64>::new(4,3);
   let mut generic2 = matrix::Matrix::<f64>::new(3,2);
