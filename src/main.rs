@@ -95,7 +95,7 @@ fn main(){
     let tm = unsafe{init_time()};
     let mut res=matrix_f32::MatrixF32::new(1,1);
     for _ in 0..10 {
-        res = &amxmat+&amxmat-&(&amxmat*&amxmat);
+        res = &amxmat+&amxmat-&amxmat*&amxmat;
     }
     println!("amx took {}",unsafe{time_me(tm)});
     for i in 0..DIM {
@@ -114,7 +114,7 @@ fn main(){
     let tm = unsafe{init_time()};
     let mut res=matrix::Matrix::<f32>::new(1,1);
     for _ in 0..10 {
-      res = &generic+&generic-&(&generic*&generic);
+      res = &generic+&generic-&generic*&generic;
     }
     println!("generic took {}",unsafe{time_me(tm)});
     for i in 0..DIM {

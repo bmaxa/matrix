@@ -24,6 +24,9 @@ impl TMatrix<'_,f32> for MatrixF32{
   fn get(&self,i:u32,j:u32)->&f32{
     &self.data[(i*self.n +j) as usize]
   }
+  fn det(&self)->f32{
+    det(self)
+  }
 }
 impl TMatrix<'_,f32> for &MatrixF32{
   fn m(&self)->u32{
@@ -35,10 +38,31 @@ impl TMatrix<'_,f32> for &MatrixF32{
   fn get(&self,i:u32,j:u32)->&f32{
     &self.data[(i*self.n +j) as usize]
   }
+  fn det(&self)->f32{
+    det(*self)
+  }
 }
 impl TMatrixMut<'_,f32> for MatrixF32{
   fn get_mut(&mut self,i:u32,j:u32)->&mut f32{
     &mut self.data[(i*self.n +j) as usize]
+  }
+}
+impl Sub for MatrixF32{
+  type Output = MatrixF32;
+  fn sub(self,rhs:Self)->Self::Output{
+    op::<'-'>(self,rhs)
+  }
+}
+impl Add for MatrixF32{
+  type Output = MatrixF32;
+  fn add(self,rhs:Self)->Self::Output{
+    op::<'+'>(self,rhs)
+  }
+}
+impl Mul for MatrixF32{
+  type Output = MatrixF32;
+  fn mul(self,rhs:Self)->Self::Output{
+    op::<'*'>(self,rhs)
   }
 }
 impl Sub for &MatrixF32{

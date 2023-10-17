@@ -6,12 +6,15 @@ pub struct Matrix<T:Clone+Default> where  T:Sub<Output = T>,T:Add<Output=T>{
   n:u32,
   data: Vec<T>
 }
-pub trait TMatrix<'a,T:Add<Output=T>+Sub<Output=T>+Mul<Output=T>+Clone+Default+'a>:Add<&'a Matrix<T>>+Sub<&'a Matrix<T>>+Mul<&'a Matrix<T>>{
+pub trait TMatrix<'a,T:Add<Output=T>+Sub<Output=T>+Mul<Output=T>
+  +Div<Output=T>+Clone+Default+'a>:Add<&'a Matrix<T>>+Sub<&'a Matrix<T>>+Mul<&'a Matrix<T>>{
   fn m(&self)->u32;
   fn n(&self)->u32;
   fn get(&self,i:u32,j:u32)->&T;
+  fn det(&self)->T;
 }
-pub trait TMatrixMut<'a,T:Add<Output=T>+Sub<Output=T>+Mul<Output=T>+Clone+Default+'a>:TMatrix<'a,T>{
+pub trait TMatrixMut<'a,T:Add<Output=T>+Sub<Output=T>+Mul<Output=T>+
+   Div<Output=T>+Clone+Default+'a>:TMatrix<'a,T>{
   fn get_mut(&mut self,i:u32,j:u32)->&mut T;
 }
 impl <T:Default+Clone+Add<Output=T>+Sub<Output=T>> Matrix<T> {
@@ -22,7 +25,8 @@ impl <T:Default+Clone+Add<Output=T>+Sub<Output=T>> Matrix<T> {
     Self{m:m,n:n,data:v}
   }
 }
-impl<'a,T:Add<Output=T>+Sub<Output=T>+Mul<Output=T>+Clone+Copy+Default+'a> TMatrix<'a,T> for Matrix<T>{
+impl<'a,T:Add<Output=T>+Sub<Output=T>+Mul<Output=T>+
+  Div<Output=T>+Clone+Copy+Default+'a> TMatrix<'a,T> for Matrix<T>{
   fn m(&self)->u32{
     self.m
   }
@@ -32,8 +36,12 @@ impl<'a,T:Add<Output=T>+Sub<Output=T>+Mul<Output=T>+Clone+Copy+Default+'a> TMatr
   fn get(&self,i:u32,j:u32)->&T{
     &self.data[(i*self.n +j) as usize]
   }
+  fn det(&self)->T{
+    det(self)
+  }
 }
-impl<'a,T:Add<Output=T>+Sub<Output=T>+Mul<Output=T>+Clone+Copy+Default+'a> TMatrix<'a,T> for &'a Matrix<T>{
+impl<'a,T:Add<Output=T>+Sub<Output=T>+Mul<Output=T>+
+  Div<Output=T>+Clone+Copy+Default+'a> TMatrix<'a,T> for &'a Matrix<T>{
   fn m(&self)->u32{
     self.m
   }
@@ -43,43 +51,74 @@ impl<'a,T:Add<Output=T>+Sub<Output=T>+Mul<Output=T>+Clone+Copy+Default+'a> TMatr
   fn get(&self,i:u32,j:u32)->&T{
     &self.data[(i*self.n +j) as usize]
   }
+  fn det(&self)->T{
+    det(*self)
+  }
 }
-impl<'a,T:Add<Output=T>+Sub<Output=T>+Mul<Output=T>+Clone+Copy+Default+'a> TMatrixMut<'a,T> for Matrix<T>{
+impl<'a,T:Add<Output=T>+Sub<Output=T>+Mul<Output=T>
+  +Div<Output=T>+Clone+Copy+Default+'a> TMatrixMut<'a,T> for Matrix<T>{
   fn get_mut(&mut self,i:u32,j:u32)->&mut T{
     &mut self.data[(i*self.n +j) as usize]
   }
 }
-impl <'a,T: Add<Output=T>+Mul<Output=T>+Clone+Copy+Default+Sub<Output=T>> Add for &'a Matrix<T>{
+impl <T: Add<Output=T>+Mul<Output=T>+
+  Div<Output=T>+Clone+Copy+Default+Sub<Output=T>> Add for Matrix<T>{
   type Output = Matrix<T>;
   fn add(self,rhs:Self)->Self::Output{
     op::<'+',T>(self,rhs)
   }
 }
-impl <'a,T: Add<Output=T>+Mul<Output=T>+Clone+Copy+Default+Sub<Output=T>> Mul for &'a Matrix<T>{
+impl <T: Add<Output=T>+Mul<Output=T>+
+  Div<Output=T>+Clone+Copy+Default+Sub<Output=T>> Mul for Matrix<T>{
   type Output = Matrix<T>;
   fn mul(self,rhs:Self)->Self::Output{
     op::<'*',T>(self,rhs)
   }
 }
-impl <'a,T: Sub<Output=T>+Mul<Output=T>+Clone+Default+Copy + Add<Output=T>> Sub for &'a Matrix<T>{
+impl <T: Sub<Output=T>+Mul<Output=T>+
+  Div<Output=T>+Clone+Default+Copy + Add<Output=T>> Sub for Matrix<T>{
   type Output = Matrix<T>;
   fn sub(self,rhs:Self)->Self::Output{
     op::<'-',T>(self,rhs)
   }
 }
-impl <T: Add<Output=T>+Mul<Output=T>+Clone+Copy+Default + Sub<Output=T>> Add<&Matrix<T>> for Matrix<T>{
+impl <'a,T: Add<Output=T>+Mul<Output=T>+
+  Div<Output=T>+Clone+Copy+Default+Sub<Output=T>> Add for &'a Matrix<T>{
+  type Output = Matrix<T>;
+  fn add(self,rhs:Self)->Self::Output{
+    op::<'+',T>(self,rhs)
+  }
+}
+impl <'a,T: Add<Output=T>+Mul<Output=T>+
+  Div<Output=T>+Clone+Copy+Default+Sub<Output=T>> Mul for &'a Matrix<T>{
+  type Output = Matrix<T>;
+  fn mul(self,rhs:Self)->Self::Output{
+    op::<'*',T>(self,rhs)
+  }
+}
+impl <'a,T: Sub<Output=T>+Mul<Output=T>+
+  Div<Output=T>+Clone+Default+Copy + Add<Output=T>> Sub for &'a Matrix<T>{
+  type Output = Matrix<T>;
+  fn sub(self,rhs:Self)->Self::Output{
+    op::<'-',T>(self,rhs)
+  }
+}
+impl <T: Add<Output=T>+Mul<Output=T>+
+  Div<Output=T>+Clone+Copy+Default + Sub<Output=T>> Add<&Matrix<T>> for Matrix<T>{
   type Output = Self;
   fn add(self,rhs:&Self)->Self{
     op::<'+',T>(self,rhs)
   }
 }
-impl <T: Add<Output=T>+Mul<Output=T>+Clone+Copy+Default + Sub<Output=T>> Mul<&Matrix<T>> for Matrix<T>{
+impl <T: Add<Output=T>+Mul<Output=T>+
+  Div<Output=T>+Clone+Copy+Default + Sub<Output=T>> Mul<&Matrix<T>> for Matrix<T>{
   type Output = Self;
   fn mul(self,rhs:&Self)->Self{
     op::<'*',T>(self,rhs)
   }
 }
-impl <'a,T: Sub<Output=T>+Mul<Output=T>+Clone+Copy+Default + Add<Output=T>> Sub<&Matrix<T>> for Matrix<T>{
+impl <'a,T: Sub<Output=T>+Mul<Output=T>+
+  Div<Output=T>+Clone+Copy+Default + Add<Output=T>> Sub<&Matrix<T>> for Matrix<T>{
   type Output = Self;
   fn sub(self,rhs:&Self)->Self{
     op::<'-',T>(self,rhs)
@@ -92,7 +131,8 @@ where
   T:Copy,
   T:Add<Output=T>,
   T:Sub<Output=T>,
-  T:Mul<Output=T>
+  T:Mul<Output=T>,
+  T:Div<Output=T>
 {
     if OP != '*' {
       assert!(lhs.m() == rhs.m() && lhs.n() == rhs.n());
@@ -126,4 +166,14 @@ where
       _ => {}
     }
     rc
+}
+fn det<'a,T>(m:impl TMatrix<'a,T>)->T
+where
+T:Default+'a,
+T:Clone,
+T:Add<Output=T>,
+T:Sub<Output=T>,
+T:Mul<Output=T>,
+T:Div<Output=T>{
+  T::default()
 }
