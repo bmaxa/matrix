@@ -1,3 +1,4 @@
+use rand::prelude::*;
 use matrix;
 use matrix::{TMatrix,TMatrixMut,matrix_f64,matrix_f32};
 extern {
@@ -76,7 +77,7 @@ fn main(){
       println!("");
     }
   }
-  fn f2<'a>(m:impl matrix::TMatrix<'a,f64>) {
+  fn f2<'a>(m:impl matrix::TMatrix<'a,f64>){
     for i in 0..m.m() {
       for j in 0..m.n() {
         print!(" {}",m.get(i,j));
@@ -171,4 +172,29 @@ fn main(){
   let res = &f64_1 * &f64_2;
   println!("amx mult");
   f2(&res);
+  let mut generic_det = matrix::Matrix::<f64>::new(4,4);
+  let mut generic_det1 = matrix::Matrix::<f32>::new(3,3);
+  let mut rnd = [0.0,1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0,9.0,10.0,11.0,12.0,13.0,14.0,15.0];
+  let gd1 = [6.0,1.0,1.0,4.0,-2.0,5.0,2.0,8.0,7.0,0.0,0.0,0.0,0.0];
+  let mut rng = rand::thread_rng();
+  rnd.shuffle(&mut rng);
+  let mut k = 1.0;
+  for i in 0..generic_det.m() {
+    for j in 0..generic_det.n(){
+      *generic_det.get_mut(i,j) = rnd[(i*generic_det.n()+j) as usize]/* (i+j) as f64*/;
+      k += 1.0;
+    }
+  }
+  for i in 0..generic_det1.m() {
+    for j in 0..generic_det1.n(){
+      *generic_det1.get_mut(i,j) = gd1[(i*generic_det1.n()+j)as usize];
+      k += 1.0;
+    }
+  }
+  println!("generic");
+  f2(&generic_det);
+  println!("generic det {}",generic_det.det());
+  println!("generic1");
+  f1(&generic_det1);
+  println!("generic det1 {}",generic_det1.det());
 }
