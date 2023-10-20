@@ -36,7 +36,7 @@ fn main(){
   println!("before");
   pf(&tst);
   let rc = &tst+&tst+&generic;
-  let sc = &tst+&tst-&tst;
+  let sc = &tst+&tst-&rc;
   println!("after");
   pf(&rc);
   println!("sub");
@@ -178,17 +178,14 @@ fn main(){
   let gd1 = [6.0,1.0,1.0,4.0,-2.0,5.0,2.0,8.0,7.0,0.0,0.0,0.0,0.0];
   let mut rng = rand::thread_rng();
   rnd.shuffle(&mut rng);
-  let mut k = 1.0;
   for i in 0..generic_det.m() {
     for j in 0..generic_det.n(){
       *generic_det.get_mut(i,j) = rnd[(i*generic_det.n()+j) as usize]/* (i+j) as f64*/;
-      k += 1.0;
     }
   }
   for i in 0..generic_det1.m() {
     for j in 0..generic_det1.n(){
       *generic_det1.get_mut(i,j) = gd1[(i*generic_det1.n()+j)as usize];
-      k += 1.0;
     }
   }
   println!("generic");
@@ -197,4 +194,46 @@ fn main(){
   println!("generic1");
   f1(&generic_det1);
   println!("generic det1 {}",generic_det1.det());
+  const DIM1:u32 = 18;
+  let mut rnd = [0.0;(DIM1*DIM1) as usize];
+  let mut sgn:i32 = 1;
+  for i in 0..DIM1*DIM1 {
+    rnd[i as usize] = sgn as f64 * (i%2) as f64;
+    sgn = -sgn;
+  }
+  rnd.shuffle(&mut rng);
+  let mut generic1 = matrix::Matrix::<f64>::new(DIM1,DIM1);
+  let mut amx1 = matrix_f64::MatrixF64::new(DIM1,DIM1);
+  for i in 0..DIM1 {
+    for j in 0..DIM1 {
+      *generic1.get_mut(i,j) = rnd[(i*DIM1+j) as usize];
+      *amx1.get_mut(i,j) = rnd[(i*DIM1+j) as usize];
+    }
+  }
+  let gd1 = generic1.det();
+  let am1 = amx1.det();
+  println!("{} {}",gd1,am1);
+  let mut generic1 = matrix::Matrix::<f32>::new(DIM1,DIM1);
+  let mut amx1 = matrix_f32::MatrixF32::new(DIM1,DIM1);
+  for i in 0..DIM1 {
+    for j in 0..DIM1 {
+      *generic1.get_mut(i,j) = rnd[(i*DIM1+j) as usize] as f32;
+      *amx1.get_mut(i,j) = rnd[(i*DIM1+j) as usize] as f32;
+    }
+  }
+  let mut gd1 = 0.0;
+  let tm = unsafe{init_time()};
+  for _ in 0..100000 {
+    gd1 = generic1.det();
+  }
+  let time = unsafe{time_me(tm)};
+  println!("generic time {}",time);
+  let mut am1 = 0.0;
+  let tm = unsafe{init_time()};
+  for _ in 0..100000 {
+    am1 = amx1.det();
+  }
+  let time = unsafe{time_me(tm)};
+  println!("amx time {}",time);
+  println!("{} {}",gd1,am1);
 }
