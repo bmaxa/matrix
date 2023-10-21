@@ -10,10 +10,12 @@ pub struct Matrix<T:Clone+Default+One>{
 }
 pub trait TMatrix<'a,T:Add<Output=T>+Sub<Output=T>+Mul<Output=T>+ Neg<Output=T>+PartialEq
   +One+Div<Output=T>+Clone+Default+'a>:Add<&'a Matrix<T>>+Sub<&'a Matrix<T>>+Mul<&'a Matrix<T>>{
+  type Output;
   fn m(&self)->u32;
   fn n(&self)->u32;
   fn get(&self,i:u32,j:u32)->&T;
   fn det(&self)->T;
+  fn inv(&self)-><Self as TMatrix<'a,T>>::Output;
 }
 pub trait TMatrixMut<'a,T:Add<Output=T>+Sub<Output=T>+Mul<Output=T>+One+Neg<Output=T>+PartialEq+
    Div<Output=T>+Clone+Default+'a>:TMatrix<'a,T>{
@@ -29,6 +31,7 @@ impl <T:Default+Debug+One+Clone+Add<Output=T>+Sub<Output=T>> Matrix<T> {
 }
 impl<'a,T:Add<Output=T>+Sub<Output=T>+Mul<Output=T>+One+Neg<Output=T>+PartialEq+
   Div<Output=T>+Debug+Clone+Copy+Default+'a> TMatrix<'a,T> for Matrix<T>{
+  type Output = Matrix<T>;
   fn m(&self)->u32{
     self.m
   }
@@ -41,9 +44,13 @@ impl<'a,T:Add<Output=T>+Sub<Output=T>+Mul<Output=T>+One+Neg<Output=T>+PartialEq+
   fn det(&self)->T{
     det(self)
   }
+  fn inv(&self)->Matrix<T>{
+    inv(self)
+  }
 }
 impl<'a,T:Add<Output=T>+Sub<Output=T>+Mul<Output=T>+One+Neg<Output=T>+PartialEq+
   Div<Output=T>+Debug+Clone+Copy+Default+'a> TMatrix<'a,T> for &'a Matrix<T>{
+  type Output = Matrix<T>;
   fn m(&self)->u32{
     self.m
   }
@@ -55,6 +62,9 @@ impl<'a,T:Add<Output=T>+Sub<Output=T>+Mul<Output=T>+One+Neg<Output=T>+PartialEq+
   }
   fn det(&self)->T{
     det(*self)
+  }
+  fn inv(&self)->Matrix<T>{
+    inv(*self)
   }
 }
 impl<'a,T:Add<Output=T>+Sub<Output=T>+Mul<Output=T>+Neg<Output=T>+PartialEq
@@ -224,4 +234,19 @@ T:Div<Output=T>{
     d = d * *tmp.get(i,i);
   }
   d
+}
+fn inv<'a,T>(m:impl TMatrix<'a,T>)->Matrix<T>
+where
+T:Default+'a,
+T:One,
+T:Clone,
+T:Copy,
+T:Debug,
+T:Neg<Output=T>,
+T:PartialEq,
+T:Add<Output=T>,
+T:Sub<Output=T>,
+T:Mul<Output=T>,
+T:Div<Output=T>{
+  Matrix::<T>::new(m.m(),m.n())
 }

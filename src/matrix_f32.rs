@@ -15,6 +15,7 @@ impl MatrixF32{
   }
 }
 impl TMatrix<'_,f32> for MatrixF32{
+  type Output = MatrixF32;
   fn m(&self)->u32{
     self.m
   }
@@ -27,8 +28,12 @@ impl TMatrix<'_,f32> for MatrixF32{
   fn det(&self)->f32{
     det(self)
   }
+  fn inv(&self)->MatrixF32{
+    inv(self)
+  }
 }
 impl TMatrix<'_,f32> for &MatrixF32{
+  type Output = MatrixF32;
   fn m(&self)->u32{
     self.m
   }
@@ -40,6 +45,9 @@ impl TMatrix<'_,f32> for &MatrixF32{
   }
   fn det(&self)->f32{
     det(*self)
+  }
+  fn inv(&self)->MatrixF32{
+    inv(*self)
   }
 }
 impl TMatrixMut<'_,f32> for MatrixF32{
@@ -310,4 +318,7 @@ fn det<'a>(m:impl TMatrix<'a, f32>)->f32{
     d = d * *tmp.get(i,i);
   }
   d
+}
+fn inv<'a>(m:impl TMatrix<'a, f32>)->MatrixF32{
+  MatrixF32::new(m.m(),m.n())
 }
