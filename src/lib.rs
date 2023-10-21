@@ -248,5 +248,85 @@ T:Add<Output=T>,
 T:Sub<Output=T>,
 T:Mul<Output=T>,
 T:Div<Output=T>{
-  Matrix::<T>::new(m.m(),m.n())
+  let mut tmp = Matrix::<T>::new(m.m(),m.n());
+  if m.m() != m.n() { return tmp }
+  let mut rc = Matrix::<T>::new(m.m(),m.n());
+  for i in 0..rc.m() {
+    *rc.get_mut(i,i) = T::one();
+  }
+  for i in 0..m.m(){
+    for j in 0..m.n() {
+      *tmp.get_mut(i,j) = *m.get(i,j);
+    }
+  }
+  for i in 0..tmp.m()-1 {
+    for k in i+1..tmp.m() {
+      let mut row = i;
+      if *tmp.get(i,i) == T::default() {
+        for l in k..tmp.m() {
+          if *tmp.get(l,i) != T::default(){
+            row = l;
+            break
+          }
+        }
+        if row != i {
+          for j in 0..tmp.n() {
+            let t = *tmp.get(i,j);
+            let t1 = *rc.get(i,j);
+            *tmp.get_mut(i,j) = *tmp.get(row,j);
+            *rc.get_mut(i,j) = *rc.get(row,j);
+            *tmp.get_mut(row,j) = t;
+            *rc.get_mut(row,j) = t1;
+          }
+        } else { return rc }
+      }
+      if *tmp.get(k,i) == T::default() { continue }
+      let mult = - *tmp.get(k,i) / *tmp.get(i,i);
+      for j in i..tmp.n(){
+        *tmp.get_mut(k,j) = *tmp.get(k,j) + *tmp.get(i,j)*mult;
+        *rc.get_mut(k,j) = *rc.get(k,j) + *rc.get(i,j)*mult;
+      }
+    }
+  }
+  for i in (1..tmp.m()).rev() {
+    println!("i = {}",i);
+    for k in (0 ..i).rev() {
+      println!("k = {}",k);
+      let mut row = i;
+      if *tmp.get(i,i) == T::default() {
+        for l in (0..k).rev() {
+          println!("l = {}",l);
+          if *tmp.get(l,i) != T::default(){
+            row = l;
+            break
+          }
+        }
+        if row != i {
+          for j in (0..tmp.n()).rev() {
+            println!("swap j {}",j);
+            let t = *tmp.get(i,j);
+            *tmp.get_mut(i,j) = *tmp.get(row,j);
+            *tmp.get_mut(row,j) = t;
+            let t = *rc.get(i,j);
+            *rc.get_mut(i,j) = *rc.get(row,j);
+            *rc.get_mut(row,j) = t;
+          }
+        } else { return rc }
+      }
+      if *tmp.get(k,i) == T::default() { continue }
+      let mult = - *tmp.get(k,i) / *tmp.get(i,i);
+      for j in (0..i+1).rev(){
+        println!("j = {}",j);
+        *tmp.get_mut(k,j) = *tmp.get(k,j) + *tmp.get(i,j)*mult;
+        *rc.get_mut(k,j) = *rc.get(k,j) + *rc.get(i,j)*mult;
+      }
+    }
+  }
+  for i in 0..tmp.m() {
+    for j in 0..tmp.n() {
+      *rc.get_mut(i,j) = *rc.get(i,j) / *tmp.get(i,i);
+    }
+    *tmp.get_mut(i,i) = *tmp.get(i,i) / *tmp.get(i,i);
+  }
+  rc
 }

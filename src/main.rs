@@ -174,8 +174,12 @@ fn main(){
   f2(&res);
   let mut generic_det = matrix::Matrix::<f64>::new(4,4);
   let mut generic_det1 = matrix::Matrix::<f32>::new(3,3);
+  let mut generic_det2 = matrix::Matrix::<f32>::new(3,3);
+  let mut generic_det3 = matrix::Matrix::<f32>::new(4,4);
   let mut rnd = [0.0,1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0,9.0,10.0,11.0,12.0,13.0,14.0,15.0];
   let gd1 = [6.0,1.0,1.0,4.0,-2.0,5.0,2.0,8.0,7.0,0.0,0.0,0.0,0.0];
+  let gd2 = [3.0,0.0,2.0,2.0,0.0,-2.0,0.0,1.0,1.0,0.0,0.0,0.0,0.0];
+  let gd3 = [4.0,0.0,0.0,0.0,0.0,0.0,2.0,0.0,0.0,1.0,2.0,0.0,1.0,0.0,0.0,1.0];
   let mut rng = rand::thread_rng();
   rnd.shuffle(&mut rng);
   for i in 0..generic_det.m() {
@@ -186,6 +190,12 @@ fn main(){
   for i in 0..generic_det1.m() {
     for j in 0..generic_det1.n(){
       *generic_det1.get_mut(i,j) = gd1[(i*generic_det1.n()+j)as usize];
+      *generic_det2.get_mut(i,j) = gd2[(i*generic_det2.n()+j)as usize];
+    }
+  }
+  for i in 0..generic_det3.m() {
+    for j in 0..generic_det3.n(){
+      *generic_det3.get_mut(i,j) = gd3[(i*generic_det3.n()+j)as usize];
     }
   }
   println!("generic");
@@ -194,6 +204,12 @@ fn main(){
   println!("generic1");
   f1(&generic_det1);
   println!("generic det1 {}",generic_det1.det());
+  println!("generic inverse");
+  f1(&generic_det1.inv());
+  println!("generic2 inverse");
+  f1(&generic_det2.inv());
+  println!("generic3 inverse");
+  f1(&generic_det3.inv());
   const DIM1:u32 = 18;
   let mut rnd = [0.0;(DIM1*DIM1) as usize];
   let mut sgn:i32 = 1;
