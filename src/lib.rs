@@ -326,7 +326,6 @@ T:Div<Output=T>{
     for j in 0..tmp.n() {
       *rc.get_mut(i,j) = *rc.get(i,j) / *tmp.get(i,i);
     }
-    *tmp.get_mut(i,i) = *tmp.get(i,i) / *tmp.get(i,i);
   }
   rc
 }
