@@ -443,7 +443,7 @@ fn inv<'a>(m:impl TMatrix<'a, f32>)->MatrixF32{
       let mult = - *tmp.get(k,i) / *tmp.get(i,i);
       let mult8 = [mult;16];
       unsafe {ctx.load512(&mult8,YRow(0))};
-      let mut r = i;
+      let mut r = 0;
       if i >= 16 {
         for j in (0..i).step_by(16){
           if i - j >= 16 {
@@ -457,11 +457,11 @@ fn inv<'a>(m:impl TMatrix<'a, f32>)->MatrixF32{
               ctx.fma32_vec(0,0,0,0);
               ctx.store512(rc.get_mut(k,j),ZRow(0));
             }
-            r -= 16;
+            r = j + 16;
           }
         }
       }
-      for j in 0..r{
+      for j in (r..i+1).rev(){
         *tmp.get_mut(k,j) = *tmp.get(k,j) + *tmp.get(i,j)*mult;
         *rc.get_mut(k,j) = *rc.get(k,j) + *rc.get(i,j)*mult;
       }

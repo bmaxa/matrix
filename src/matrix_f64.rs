@@ -443,25 +443,25 @@ fn inv<'a>(m:impl TMatrix<'a, f64>)->MatrixF64{
       let mult = - *tmp.get(k,i) / *tmp.get(i,i);
       let mult8 = [mult;8];
       unsafe {ctx.load512(&mult8,YRow(0))};
-      let mut r = i;
+      let mut r = 0;
       if i >= 8 {
         for j in (0..i).step_by(8){
           if i - j >= 8 {
             unsafe{
               ctx.load512(tmp.get(k,j),ZRow(0));
               ctx.load512(tmp.get(i,j),XRow(0));
-              ctx.fma32_vec(0,0,0,0);
+              ctx.fma64_vec(0,0,0,0);
               ctx.store512(tmp.get_mut(k,j),ZRow(0));
               ctx.load512(rc.get(k,j),ZRow(0));
               ctx.load512(rc.get(i,j),XRow(0));
-              ctx.fma32_vec(0,0,0,0);
+              ctx.fma64_vec(0,0,0,0);
               ctx.store512(rc.get_mut(k,j),ZRow(0));
             }
-            r -= 8;
+            r = j + 8;
           }
         }
       }
-      for j in 0..r{
+      for j in (r..i+1).rev(){
         *tmp.get_mut(k,j) = *tmp.get(k,j) + *tmp.get(i,j)*mult;
         *rc.get_mut(k,j) = *rc.get(k,j) + *rc.get(i,j)*mult;
       }
@@ -474,7 +474,7 @@ fn inv<'a>(m:impl TMatrix<'a, f64>)->MatrixF64{
     for j in 0..nd8 {
       unsafe {
         ctx.load512(rc.get(i,j*8),XRow(0));
-        ctx.fma32_vec_xy(0,0,0,0);
+        ctx.fma64_vec_xy(0,0,0,0);
         ctx.store512(rc.get_mut(i,j*8),ZRow(0));
       }
     }

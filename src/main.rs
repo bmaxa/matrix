@@ -256,4 +256,31 @@ fn main(){
   f1(&generic1.inv());
   println!("amx1 inv");
   f1(&amx1.inv());
+  let mut generic1 = matrix::Matrix::<f64>::new(DIM1,DIM1);
+  let mut amx1 = matrix_f64::MatrixF64::new(DIM1,DIM1);
+  for i in 0..DIM1 {
+    for j in 0..DIM1 {
+      *generic1.get_mut(i,j) = rnd[(i*DIM1+j) as usize];
+      *amx1.get_mut(i,j) = rnd[(i*DIM1+j) as usize];
+    }
+  }
+  let mut gd1 = 0.0;
+  let tm = unsafe{init_time()};
+  for _ in 0..100000 {
+    gd1 = generic1.det();
+  }
+  let time = unsafe{time_me(tm)};
+  println!("generic time {}",time);
+  let mut am1 = 0.0;
+  let tm = unsafe{init_time()};
+  for _ in 0..100000 {
+    am1 = amx1.det();
+  }
+  let time = unsafe{time_me(tm)};
+  println!("amx time {}",time);
+  println!("{} {}",gd1,am1);
+  println!("generic1 inv");
+  f2(&generic1.inv());
+  println!("amx1 inv");
+  f2(&amx1.inv());
 }
