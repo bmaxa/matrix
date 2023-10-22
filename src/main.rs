@@ -218,12 +218,12 @@ fn main(){
     sgn = -sgn;
   }
   rnd.shuffle(&mut rng);
-  let mut generic1 = matrix::Matrix::<f64>::new(DIM1,DIM1);
-  let mut amx1 = matrix_f64::MatrixF64::new(DIM1,DIM1);
+  let mut generic1 = matrix::Matrix::<f32>::new(DIM1,DIM1);
+  let mut amx1 = matrix_f32::MatrixF32::new(DIM1,DIM1);
   for i in 0..DIM1 {
     for j in 0..DIM1 {
-      *generic1.get_mut(i,j) = rnd[(i*DIM1+j) as usize];
-      *amx1.get_mut(i,j) = rnd[(i*DIM1+j) as usize];
+      *generic1.get_mut(i,j) = rnd[(i*DIM1+j) as usize] as f32;
+      *amx1.get_mut(i,j) = rnd[(i*DIM1+j) as usize] as f32;
     }
   }
   let gd1 = generic1.det();
@@ -252,4 +252,8 @@ fn main(){
   let time = unsafe{time_me(tm)};
   println!("amx time {}",time);
   println!("{} {}",gd1,am1);
+  println!("generic1 inv");
+  f1(&generic1.inv());
+  println!("amx1 inv");
+  f1(&amx1.inv());
 }

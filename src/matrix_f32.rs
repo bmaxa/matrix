@@ -301,15 +301,21 @@ fn det<'a>(m:impl TMatrix<'a, f32>)->f32{
       let mult = - *tmp.get(k,i) / *tmp.get(i,i);
       let mult8 = [mult;16];
       unsafe { ctx.load512(&mult8,YRow(0)); }
-      for j in i/16..(tmp.n()-i)/16 {
-        unsafe {
-          ctx.load512(tmp.get(k,j*16),ZRow(0));
-          ctx.load512(tmp.get(i,j*16),XRow(0));
-          ctx.fma32_vec(0,0,0,0);
-          ctx.store512(tmp.get_mut(k,j*16),ZRow(0));
+      let mut r = i;
+      if tmp.n() -i >= 16 {
+        for j in (i..tmp.n()).step_by(16) {
+          if tmp.n() -j >= 16 {
+            unsafe {
+              ctx.load512(tmp.get(k,j),ZRow(0));
+              ctx.load512(tmp.get(i,j),XRow(0));
+              ctx.fma32_vec(0,0,0,0);
+              ctx.store512(tmp.get_mut(k,j),ZRow(0));
+            }
+            r = j+16;
+          }
         }
       }
-      for j in (tmp.n()-i)/16*16..tmp.n(){
+      for j in r..tmp.n(){
         *tmp.get_mut(k,j) = *tmp.get(k,j) + *tmp.get(i,j)*mult;
       }
     }
@@ -320,5 +326,161 @@ fn det<'a>(m:impl TMatrix<'a, f32>)->f32{
   d
 }
 fn inv<'a>(m:impl TMatrix<'a, f32>)->MatrixF32{
-  MatrixF32::new(m.m(),m.n())
+  let nd8 = m.n()/16;
+  let mut tmp = MatrixF32::new(m.m(),m.n());
+  if m.m() != m.n() { return tmp }
+  let mut rc = MatrixF32::new(m.m(),m.n());
+  let mut ctx = amx::AmxCtx::new().unwrap();
+  for i in 0..rc.m() {
+    *rc.get_mut(i,i) = 1.0;
+  }
+  for i in 0..tmp.m(){
+    for j in 0..nd8 {
+      unsafe {
+        ctx.load512(m.get(i,j*16),XRow(0));
+        ctx.store512(tmp.get_mut(i,j*16),XRow(0));
+      }
+    }
+    for j in nd8*16..tmp.n() {
+      *tmp.get_mut(i,j) = *m.get(i,j);
+    }
+  }
+  for i in 0..tmp.m()-1 {
+    for k in i+1..tmp.m() {
+      let mut row = i;
+      if *tmp.get(i,i) == 0.0 {
+        for l in k..tmp.m() {
+          if *tmp.get(l,i) != 0.0{
+            row = l;
+            break
+          }
+        }
+        if row != i {
+          for j in 0..nd8 {
+            unsafe {
+              ctx.load512(tmp.get(i,j*16),XRow(0));
+              ctx.load512(tmp.get(row,j*16),XRow(1));
+              ctx.store512(tmp.get_mut(i,j*16),XRow(1));
+              ctx.store512(tmp.get_mut(row,j*16),XRow(0));
+              ctx.load512(rc.get(i,j*16),XRow(0));
+              ctx.load512(rc.get(row,j*16),XRow(1));
+              ctx.store512(rc.get_mut(i,j*16),XRow(1));
+              ctx.store512(rc.get_mut(row,j*16),XRow(0));
+            }
+          }
+          for j in nd8*16..tmp.n() {
+            let t = *tmp.get(i,j);
+            let t1 = *rc.get(i,j);
+            *tmp.get_mut(i,j) = *tmp.get(row,j);
+            *rc.get_mut(i,j) = *rc.get(row,j);
+            *tmp.get_mut(row,j) = t;
+            *rc.get_mut(row,j) = t1;
+          }
+        } else { return rc }
+      }
+      if *tmp.get(k,i) == 0.0 { continue }
+      let mult = - *tmp.get(k,i) / *tmp.get(i,i);
+      let mult8 = [mult;16];
+      unsafe {ctx.load512(&mult8,YRow(0))};
+      let mut r = i;
+      if tmp.n() - i >= 16 {
+        for j in (i..tmp.n()).step_by(16){
+          if tmp.n() -j >= 16 {
+            unsafe{
+              ctx.load512(tmp.get(k,j),ZRow(0));
+              ctx.load512(tmp.get(i,j),XRow(0));
+              ctx.fma32_vec(0,0,0,0);
+              ctx.store512(tmp.get_mut(k,j),ZRow(0));
+              ctx.load512(rc.get(k,j),ZRow(0));
+              ctx.load512(rc.get(i,j),XRow(0));
+              ctx.fma32_vec(0,0,0,0);
+              ctx.store512(rc.get_mut(k,j),ZRow(0));
+            }
+            r = j + 16;
+          }
+        }
+      }
+      for j in r..tmp.n(){
+        *tmp.get_mut(k,j) = *tmp.get(k,j) + *tmp.get(i,j)*mult;
+        *rc.get_mut(k,j) = *rc.get(k,j) + *rc.get(i,j)*mult;
+      }
+    }
+  }
+  for i in (1..tmp.m()).rev() {
+    for k in (0 ..i).rev() {
+      let mut row = i;
+      if *tmp.get(i,i) == 0.0 {
+        for l in (0..k).rev() {
+          if *tmp.get(l,i) != 0.0{
+            row = l;
+            break
+          }
+        }
+        if row != i {
+          for j in 0..nd8 {
+            unsafe {
+              ctx.load512(tmp.get(i,j*16),XRow(0));
+              ctx.load512(tmp.get(row,j*16),XRow(1));
+              ctx.store512(tmp.get_mut(i,j*16),XRow(1));
+              ctx.store512(tmp.get_mut(row,j*16),XRow(0));
+              ctx.load512(rc.get(i,j*16),XRow(0));
+              ctx.load512(rc.get(row,j*16),XRow(1));
+              ctx.store512(rc.get_mut(i,j*16),XRow(1));
+              ctx.store512(rc.get_mut(row,j*16),XRow(0));
+            }
+          }
+          for j in nd8*16..tmp.n() {
+            let t = *tmp.get(i,j);
+            let t1 = *rc.get(i,j);
+            *tmp.get_mut(i,j) = *tmp.get(row,j);
+            *rc.get_mut(i,j) = *rc.get(row,j);
+            *tmp.get_mut(row,j) = t;
+            *rc.get_mut(row,j) = t1;
+          }
+        } else { return rc }
+      }
+      if *tmp.get(k,i) == 0.0 { continue }
+      let mult = - *tmp.get(k,i) / *tmp.get(i,i);
+      let mult8 = [mult;16];
+      unsafe {ctx.load512(&mult8,YRow(0))};
+      let mut r = i;
+      if i >= 16 {
+        for j in (0..i).step_by(16){
+          if i - j >= 16 {
+            unsafe{
+              ctx.load512(tmp.get(k,j),ZRow(0));
+              ctx.load512(tmp.get(i,j),XRow(0));
+              ctx.fma32_vec(0,0,0,0);
+              ctx.store512(tmp.get_mut(k,j),ZRow(0));
+              ctx.load512(rc.get(k,j),ZRow(0));
+              ctx.load512(rc.get(i,j),XRow(0));
+              ctx.fma32_vec(0,0,0,0);
+              ctx.store512(rc.get_mut(k,j),ZRow(0));
+            }
+            r -= 16;
+          }
+        }
+      }
+      for j in 0..r{
+        *tmp.get_mut(k,j) = *tmp.get(k,j) + *tmp.get(i,j)*mult;
+        *rc.get_mut(k,j) = *rc.get(k,j) + *rc.get(i,j)*mult;
+      }
+    }
+  }
+  for i in 0..tmp.m() {
+    let mult = 1.0 / *tmp.get(i,i);
+    let mult8 = [mult;16];
+    unsafe { ctx.load512(&mult8,YRow(0)) };
+    for j in 0..nd8 {
+      unsafe {
+        ctx.load512(rc.get(i,j*16),XRow(0));
+        ctx.fma32_vec_xy(0,0,0,0);
+        ctx.store512(rc.get_mut(i,j*16),ZRow(0));
+      }
+    }
+    for j in nd8*16..tmp.n() {
+      *rc.get_mut(i,j) = *rc.get(i,j) * mult;
+    }
+  }
+  rc
 }

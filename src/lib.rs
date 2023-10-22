@@ -289,13 +289,10 @@ T:Div<Output=T>{
     }
   }
   for i in (1..tmp.m()).rev() {
-    println!("i = {}",i);
     for k in (0 ..i).rev() {
-      println!("k = {}",k);
       let mut row = i;
       if *tmp.get(i,i) == T::default() {
         for l in (0..k).rev() {
-          println!("l = {}",l);
           if *tmp.get(l,i) != T::default(){
             row = l;
             break
@@ -303,7 +300,6 @@ T:Div<Output=T>{
         }
         if row != i {
           for j in (0..tmp.n()).rev() {
-            println!("swap j {}",j);
             let t = *tmp.get(i,j);
             *tmp.get_mut(i,j) = *tmp.get(row,j);
             *tmp.get_mut(row,j) = t;
@@ -316,7 +312,6 @@ T:Div<Output=T>{
       if *tmp.get(k,i) == T::default() { continue }
       let mult = - *tmp.get(k,i) / *tmp.get(i,i);
       for j in (0..i+1).rev(){
-        println!("j = {}",j);
         *tmp.get_mut(k,j) = *tmp.get(k,j) + *tmp.get(i,j)*mult;
         *rc.get_mut(k,j) = *rc.get(k,j) + *rc.get(i,j)*mult;
       }
