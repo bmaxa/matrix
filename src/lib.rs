@@ -313,7 +313,7 @@ T:Neg<Output=T>{
   }
   rc
 }
-fn fmt<'a,T:Debug>(this:impl TMatrix<'a,T>, f: &mut fmt::Formatter<'_>) -> fmt::Result
+fn fmt<'a,T>(this:impl TMatrix<'a,T>, f: &mut fmt::Formatter<'_>) -> fmt::Result
 where
 T:Num,
 T:Default+'a,
