@@ -8,7 +8,7 @@ pub struct Matrix<T:Num+Clone+Default+One>{
   n:u32,
   data: Vec<T>
 }
-pub trait TMatrix<'a,T:Num+ Neg<Output=T>+One+Clone+Default+'a>:Add<&'a Matrix<T>>+Sub<&'a Matrix<T>>+Mul<&'a Matrix<T>>{
+pub trait TMatrix<'a,T:Num+ Neg<Output=T>+One+Clone+Default+'a>{
   type Output;
   fn m(&self)->u32;
   fn n(&self)->u32;
