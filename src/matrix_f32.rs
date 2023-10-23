@@ -55,6 +55,29 @@ impl TMatrixMut<'_,f32> for MatrixF32{
     &mut self.data[(i*self.n +j) as usize]
   }
 }
+impl Mul<f32> for MatrixF32 {
+  type Output = MatrixF32;
+  fn mul(self,rhs:f32)->MatrixF32{
+    let mut rc = MatrixF32::new(self.m(),self.n());
+    let mult8 = [rhs;16];
+    let nd8 = self.n()/16;
+    let mut ctx = amx::AmxCtx::new().unwrap();
+    unsafe {ctx.load512(&mult8,YRow(0))};
+    for i in 0..self.m() {
+      for j in 0..nd8 {
+        unsafe {
+          ctx.load512(self.get(i,j*16),XRow(0));
+          ctx.fma32_vec_xy(0,0,0,0);
+          ctx.store512(rc.get_mut(i,j*16),ZRow(0));
+        }
+      }
+      for j in nd8*16..self.n(){
+        *rc.get_mut(i,j) = *self.get(i,j) * rhs;
+      }
+    }
+    rc
+  }
+}
 impl Sub for MatrixF32{
   type Output = MatrixF32;
   fn sub(self,rhs:Self)->Self::Output{

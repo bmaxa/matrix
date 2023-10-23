@@ -55,6 +55,29 @@ impl TMatrixMut<'_,f64> for MatrixF64{
     &mut self.data[(i*self.n +j) as usize]
   }
 }
+impl Mul<f64> for MatrixF64 {
+  type Output = MatrixF64;
+  fn mul(self,rhs:f64)->MatrixF64{
+    let mut rc = MatrixF64::new(self.m(),self.n());
+    let mult8 = [rhs;8];
+    let nd8 = self.n()/8;
+    let mut ctx = amx::AmxCtx::new().unwrap();
+    unsafe {ctx.load512(&mult8,YRow(0))};
+    for i in 0..self.m() {
+      for j in 0..nd8 {
+        unsafe {
+          ctx.load512(self.get(i,j*8),XRow(0));
+          ctx.fma64_vec_xy(0,0,0,0);
+          ctx.store512(rc.get_mut(i,j*8),ZRow(0));
+        }
+      }
+      for j in nd8*8..self.n(){
+        *rc.get_mut(i,j) = *self.get(i,j) * rhs;
+      }
+    }
+    rc
+  }
+}
 impl Sub for MatrixF64{
   type Output = MatrixF64;
   fn sub(self,rhs:Self)->Self::Output{
