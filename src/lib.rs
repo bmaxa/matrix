@@ -1,5 +1,6 @@
 use std::ops::*;
-use std::fmt::Debug;
+use std::fmt::*;
+use std::fmt;
 use num::*;
 pub mod matrix_f64;
 pub mod matrix_f32;
@@ -66,6 +67,11 @@ impl<'a,T:Num+One+Neg<Output=T>+Debug+Clone+Copy+Default+'a> TMatrix<'a,T> for &
 impl<'a,T:Num+Neg<Output=T>+Clone+Debug+Copy+Default+One+'a> TMatrixMut<'a,T> for Matrix<T>{
   fn get_mut(&mut self,i:u32,j:u32)->&mut T{
     &mut self.data[(i*self.n +j) as usize]
+  }
+}
+impl<T:Num+Debug+Neg<Output=T>+Clone+Copy+Default> Debug for Matrix<T>{
+  fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fmt(self,f)
   }
 }
 impl<'a,T:Num+Debug+Neg<Output=T>+Clone+Copy+Default> Mul<T> for Matrix<T>{
@@ -310,4 +316,25 @@ T:Neg<Output=T>{
     }
   }
   rc
+}
+fn fmt<'a,T:Debug>(this:impl TMatrix<'a,T>, f: &mut fmt::Formatter<'_>) -> fmt::Result
+where
+T:Num,
+T:Default+'a,
+T:One,
+T:Clone,
+T:Copy,
+T:Debug,
+T:Neg<Output=T>
+{
+  let mut res:fmt::Result = Ok(());
+  for i in 0..this.m() {
+    for j in 0..this.n() {
+      res = write!(f," {:?}",this.get(i,j));
+      if res.is_err() { return res }
+    }
+    res = write!(f,"\n");
+    if res.is_err() { return res }
+  }
+  res
 }

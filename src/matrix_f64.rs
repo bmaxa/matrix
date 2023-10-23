@@ -55,6 +55,11 @@ impl TMatrixMut<'_,f64> for MatrixF64{
     &mut self.data[(i*self.n +j) as usize]
   }
 }
+impl Debug for MatrixF64 {
+  fn fmt(&self,f:&mut fmt::Formatter<'_>)->fmt::Result {
+    fmt(self,f)
+  }
+}
 impl Mul<f64> for MatrixF64 {
   type Output = MatrixF64;
   fn mul(self,rhs:f64)->MatrixF64{

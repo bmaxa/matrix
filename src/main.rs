@@ -25,22 +25,11 @@ fn main(){
       *tst.get_mut(i,j)=(i+j) as f64;
     }
   }
-  let pf = |rc:&matrix_f64::MatrixF64|{
-    for i in 0..17{
-      for j in 0..15 {
-        print!(" {}",rc.get(i,j));
-      }
-      println!("");
-    }
-  };
-  println!("before");
-  pf(&tst);
+  println!("before\n{:?}",tst);
   let rc = &tst+&tst+&generic;
   let sc = &tst+&tst-&rc;
-  println!("after");
-  pf(&rc);
-  println!("sub");
-  pf(&sc);
+  println!("after\n{:?}",rc);
+  println!("sub\n{:?}",sc);
   let mut tst = matrix_f32::MatrixF32::new(17,18);
   let mut generic = matrix::Matrix::<f32>::new(17,18);
   for i in 0..17{
@@ -53,38 +42,11 @@ fn main(){
       *tst.get_mut(i,j)=(i+j) as f32;
     }
   }
-  let pf = |rc:&matrix_f32::MatrixF32|{
-    for i in 0..17{
-      for j in 0..18 {
-        print!(" {}",rc.get(i,j));
-      }
-      println!("");
-    }
-  };
-  println!("before");
-  pf(&tst);
+  println!("before\n{:?}",tst);
   let rc = &tst+&tst+&generic;
   let sc = &tst+&tst-&tst;
-  println!("after");
-  pf(&rc);
-  println!("sub");
-  pf(&sc);
-  fn f1<'a>(m:impl matrix::TMatrix<'a,f32>) {
-    for i in 0..m.m() {
-      for j in 0..m.n() {
-        print!(" {}",m.get(i,j));
-      }
-      println!("");
-    }
-  }
-  fn f2<'a>(m:impl matrix::TMatrix<'a,f64>){
-    for i in 0..m.m() {
-      for j in 0..m.n() {
-        print!(" {}",m.get(i,j));
-      }
-      println!("");
-    }
-  }
+  println!("after\n{:?}",rc);
+  println!("sub\n{:?}",sc);
   const DIM:u32 = 1000;
   let mut amxmat = matrix_f32::MatrixF32::new(DIM,DIM);
   {
@@ -141,18 +103,15 @@ fn main(){
       *generic1.get_mut(i,j) = (i+j) as f64;
     }
   }
-  println!("mat 1");
-  f2(&generic1);
+  println!("mat 1\n{:?}",generic1);
   for i in 0..generic2.m() {
     for j in 0..generic2.n() {
       *generic2.get_mut(i,j) = (i+j) as f64;
     }
   }
-  println!("mat 2");
-  f2(&generic2);
+  println!("mat 2\n{:?}",generic2);
   let res = &generic1 * &generic2;
-  println!("mult");
-  f2(&res);
+  println!("mult\n{:?}",res);
   let mut f64_1 = matrix_f64::MatrixF64::new(4,3);
   let mut f64_2 = matrix_f64::MatrixF64::new(3,2);
   for i in 0..f64_1.m() {
@@ -160,18 +119,15 @@ fn main(){
       *f64_1.get_mut(i,j) = (i+j) as f64;
     }
   }
-  println!("amx mat 1");
-  f2(&f64_1);
+  println!("amx mat 1\n{:?}",f64_1);
   for i in 0..f64_2.m() {
     for j in 0..f64_2.n() {
       *f64_2.get_mut(i,j) = (i+j) as f64;
     }
   }
-  println!("amx mat 2");
-  f2(&f64_2);
+  println!("amx mat 2\n{:?}",f64_2);
   let res = &f64_1 * &f64_2;
-  println!("amx mult");
-  f2(&res);
+  println!("amx mult\n{:?}",res);
   let mut generic_det = matrix::Matrix::<f64>::new(4,4);
   let mut generic_det1 = matrix::Matrix::<f32>::new(3,3);
   let mut generic_det2 = matrix::Matrix::<f32>::new(3,3);
@@ -198,18 +154,13 @@ fn main(){
       *generic_det3.get_mut(i,j) = gd3[(i*generic_det3.n()+j)as usize];
     }
   }
-  println!("generic");
-  f2(&generic_det);
+  println!("generic\n{:?}",generic_det);
   println!("generic det {}",generic_det.det());
-  println!("generic1");
-  f1(&generic_det1);
+  println!("generic1\n{:?}",generic_det1);
   println!("generic det1 {}",generic_det1.det());
-  println!("generic inverse");
-  f1(&generic_det1.inv());
-  println!("generic2 inverse");
-  f1(&generic_det2.inv());
-  println!("generic3 inverse");
-  f1(&generic_det3.inv());
+  println!("generic inverse\n{:?}",generic_det1.inv());
+  println!("generic2 inverse\n{:?}",generic_det2.inv());
+  println!("generic3 inverse\n{:?}",generic_det3.inv());
   const DIM1:u32 = 18;
   let mut rnd = [0.0;(DIM1*DIM1) as usize];
   let mut sgn:i32 = 1;
@@ -254,10 +205,8 @@ fn main(){
   let time = unsafe{time_me(tm)};
   println!("amx time {}",time);
   println!("{} {}",gd1,am1);
-  println!("generic1 inv");
-  f1(&(generic1.inv()*3.0));
-  println!("amx1 inv");
-  f1(&(amx1.inv()*3.0));
+  println!("generic1 inv\n{:?}",generic1.inv()*3.0);
+  println!("amx1 inv\n{:?}",amx1.inv()*3.0);
   let mut generic1 = matrix::Matrix::<f64>::new(DIM1,DIM1);
   let mut amx1 = matrix_f64::MatrixF64::new(DIM1,DIM1);
   for i in 0..DIM1 {
@@ -283,8 +232,6 @@ fn main(){
   let time = unsafe{time_me(tm)};
   println!("amx time {}",time);
   println!("{} {}",gd1,am1);
-  println!("generic1 inv");
-  f2(&(generic1.inv()*3.0));
-  println!("amx1 inv");
-  f2(&(amx1.inv()*3.0));
+  println!("generic1 inv\n{:?}",generic1.inv()*3.0);
+  println!("amx1 inv\n{:?}",amx1.inv()*3.0);
 }
