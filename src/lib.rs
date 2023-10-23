@@ -19,7 +19,7 @@ pub trait TMatrix<'a,T:Num+ Neg<Output=T>+One+Clone+Default+'a>:Add<&'a Matrix<T
 pub trait TMatrixMut<'a,T:Num+One+Neg<Output=T>+Clone+Default+'a>:TMatrix<'a,T>{
   fn get_mut(&mut self,i:u32,j:u32)->&mut T;
 }
-impl <T:Num+Default+Debug+One+Clone+Add<Output=T>+Sub<Output=T>> Matrix<T> {
+impl <T:Num+Default+Debug+One+Clone> Matrix<T> {
   pub fn new(m:u32,n:u32)->Self {
     assert!(m>0 && n>0);
     let mut v = Vec::new();
@@ -228,7 +228,7 @@ T:Neg<Output=T>{
 }
 fn inv<'a,T>(m:impl TMatrix<'a,T>)->Matrix<T>
 where
-  T:Num,
+T:Num,
 T:Default+'a,
 T:One,
 T:Clone,
