@@ -74,7 +74,7 @@ impl<T:Num+Debug+Neg<Output=T>+Clone+Copy+Default> Debug for Matrix<T>{
     fmt(self,f)
   }
 }
-impl<'a,T:Num+Debug+Neg<Output=T>+Clone+Copy+Default> Mul<T> for Matrix<T>{
+impl<T:Num+Debug+Neg<Output=T>+Clone+Copy+Default> Mul<T> for Matrix<T>{
   type Output = Matrix<T>;
   fn mul(self,rhs:T)->Matrix<T>{
     let mut rc = Matrix::<T>::new(self.m(),self.n());
