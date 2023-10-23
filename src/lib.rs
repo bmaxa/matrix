@@ -73,7 +73,7 @@ impl<'a,T:Add<Output=T>+Sub<Output=T>+Mul<Output=T>+Neg<Output=T>+PartialEq
     &mut self.data[(i*self.n +j) as usize]
   }
 }
-impl<'a,T:Num+Add<Output=T>+Sub<Output=T>+Mul<Output=T>+Div<Output=T>+Debug+Neg<Output=T>+PartialEq+Clone+Copy+Default+One> Mul<T> for Matrix<T>{
+impl<'a,T:Num+Debug+Neg<Output=T>+Clone+Copy+Default> Mul<T> for Matrix<T>{
   type Output = Matrix<T>;
   fn mul(self,rhs:T)->Matrix<T>{
     let mut rc = Matrix::<T>::new(self.m(),self.n());
