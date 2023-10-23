@@ -4,12 +4,12 @@ use std::fmt;
 use num::*;
 pub mod matrix_f64;
 pub mod matrix_f32;
-pub struct Matrix<T:Num+Clone+Default+One>{
+pub struct Matrix<T:Num+Clone+Default>{
   m:u32,
   n:u32,
   data: Vec<T>
 }
-pub trait TMatrix<'a,T:Num+ Neg<Output=T>+One+Clone+Default+'a>{
+pub trait TMatrix<'a,T:Num+ Neg<Output=T>+Clone+Default+'a>{
   type Output;
   fn m(&self)->u32;
   fn n(&self)->u32;
@@ -17,10 +17,10 @@ pub trait TMatrix<'a,T:Num+ Neg<Output=T>+One+Clone+Default+'a>{
   fn det(&self)->T;
   fn inv(&self)-><Self as TMatrix<'a,T>>::Output;
 }
-pub trait TMatrixMut<'a,T:Num+One+Neg<Output=T>+Clone+Default+'a>:TMatrix<'a,T>{
+pub trait TMatrixMut<'a,T:Num+Neg<Output=T>+Clone+Default+'a>:TMatrix<'a,T>{
   fn get_mut(&mut self,i:u32,j:u32)->&mut T;
 }
-impl <T:Num+Default+Debug+One+Clone> Matrix<T> {
+impl <T:Num+Default+Debug+Clone> Matrix<T> {
   pub fn new(m:u32,n:u32)->Self {
     assert!(m>0 && n>0);
     let mut v = Vec::new();
@@ -28,7 +28,7 @@ impl <T:Num+Default+Debug+One+Clone> Matrix<T> {
     Self{m:m,n:n,data:v}
   }
 }
-impl<'a,T:Num+One+Neg<Output=T>+Debug+Clone+Copy+Default+'a> TMatrix<'a,T> for Matrix<T>{
+impl<'a,T:Num+Neg<Output=T>+Debug+Clone+Copy+Default+'a> TMatrix<'a,T> for Matrix<T>{
   type Output = Matrix<T>;
   fn m(&self)->u32{
     self.m
@@ -46,7 +46,7 @@ impl<'a,T:Num+One+Neg<Output=T>+Debug+Clone+Copy+Default+'a> TMatrix<'a,T> for M
     inv(self)
   }
 }
-impl<'a,T:Num+One+Neg<Output=T>+Debug+Clone+Copy+Default+'a> TMatrix<'a,T> for &'a Matrix<T>{
+impl<'a,T:Num+Neg<Output=T>+Debug+Clone+Copy+Default+'a> TMatrix<'a,T> for &'a Matrix<T>{
   type Output = Matrix<T>;
   fn m(&self)->u32{
     self.m
@@ -64,7 +64,7 @@ impl<'a,T:Num+One+Neg<Output=T>+Debug+Clone+Copy+Default+'a> TMatrix<'a,T> for &
     inv(*self)
   }
 }
-impl<'a,T:Num+Neg<Output=T>+Clone+Debug+Copy+Default+One+'a> TMatrixMut<'a,T> for Matrix<T>{
+impl<'a,T:Num+Neg<Output=T>+Clone+Debug+Copy+Default+'a> TMatrixMut<'a,T> for Matrix<T>{
   fn get_mut(&mut self,i:u32,j:u32)->&mut T{
     &mut self.data[(i*self.n +j) as usize]
   }
@@ -86,56 +86,55 @@ impl<T:Num+Debug+Neg<Output=T>+Clone+Copy+Default> Mul<T> for Matrix<T>{
     rc
   }
 }
-impl <T:Num+Neg<Output=T>+Clone+Debug+Copy+Default+One> Add for Matrix<T>{
+impl <T:Num+Neg<Output=T>+Clone+Debug+Copy+Default> Add for Matrix<T>{
   type Output = Matrix<T>;
   fn add(self,rhs:Self)->Self::Output{
     op::<'+',T>(self,rhs)
   }
 }
-impl <T:Num+Neg<Output=T>+Debug+Clone+Copy+Default+One> Mul for Matrix<T>{
+impl <T:Num+Neg<Output=T>+Debug+Clone+Copy+Default> Mul for Matrix<T>{
   type Output = Matrix<T>;
   fn mul(self,rhs:Self)->Self::Output{
     op::<'*',T>(self,rhs)
   }
 }
-impl <T:Num+Neg<Output=T>+Clone+Debug+Default+Copy+One> Sub for Matrix<T>{
+impl <T:Num+Neg<Output=T>+Clone+Debug+Default+Copy> Sub for Matrix<T>{
   type Output = Matrix<T>;
   fn sub(self,rhs:Self)->Self::Output{
     op::<'-',T>(self,rhs)
   }
 }
-impl <'a,T:Num+Neg<Output=T>+Clone+Debug+Copy+Default+One> Add for &'a Matrix<T>{
+impl <'a,T:Num+Neg<Output=T>+Clone+Debug+Copy+Default> Add for &'a Matrix<T>{
   type Output = Matrix<T>;
   fn add(self,rhs:Self)->Self::Output{
     op::<'+',T>(self,rhs)
   }
 }
-impl <'a,T:Num+Neg<Output=T>+Clone+Debug+Copy+Default+One> Mul for &'a Matrix<T>{
+impl <'a,T:Num+Neg<Output=T>+Clone+Debug+Copy+Default> Mul for &'a Matrix<T>{
   type Output = Matrix<T>;
   fn mul(self,rhs:Self)->Self::Output{
     op::<'*',T>(self,rhs)
   }
 }
-impl <'a,T:Num+ Sub<Output=T>+Mul<Output=T>+Neg<Output=T>+PartialEq+
-  Div<Output=T>+Clone+Debug+Default+Copy+One + Add<Output=T>> Sub for &'a Matrix<T>{
+impl <'a,T:Num+Neg<Output=T>+Clone+Debug+Default+Copy> Sub for &'a Matrix<T>{
   type Output = Matrix<T>;
   fn sub(self,rhs:Self)->Self::Output{
     op::<'-',T>(self,rhs)
   }
 }
-impl <T:Num+Neg<Output=T>+Clone+Debug+Copy+Default+One> Add<&Matrix<T>> for Matrix<T>{
+impl <T:Num+Neg<Output=T>+Clone+Debug+Copy+Default> Add<&Matrix<T>> for Matrix<T>{
   type Output = Self;
   fn add(self,rhs:&Self)->Self{
     op::<'+',T>(self,rhs)
   }
 }
-impl <T:Num+Neg<Output=T>+Clone+Debug+Copy+Default+One> Mul<&Matrix<T>> for Matrix<T>{
+impl <T:Num+Neg<Output=T>+Clone+Debug+Copy+Default> Mul<&Matrix<T>> for Matrix<T>{
   type Output = Self;
   fn mul(self,rhs:&Self)->Self{
     op::<'*',T>(self,rhs)
   }
 }
-impl <'a,T:Num+Neg<Output=T>+One+Debug+Clone+Copy+Default> Sub<&Matrix<T>> for Matrix<T>{
+impl <'a,T:Num+Neg<Output=T>+Debug+Clone+Copy+Default> Sub<&Matrix<T>> for Matrix<T>{
   type Output = Self;
   fn sub(self,rhs:&Self)->Self{
     op::<'-',T>(self,rhs)
@@ -145,7 +144,6 @@ fn op<'a,const OP:char,T>(lhs:impl TMatrix<'a,T>,rhs:impl TMatrix<'a,T>)->Matrix
 where
   T:Num,
   T:Default+'a,
-  T:One,
   T:Clone,
   T:Copy,
   T:Debug,
@@ -188,7 +186,6 @@ fn det<'a,T>(m:impl TMatrix<'a,T>)->T
 where
 T:Num,
 T:Default+'a,
-T:One,
 T:Clone,
 T:Copy,
 T:Debug,
@@ -236,7 +233,6 @@ fn inv<'a,T>(m:impl TMatrix<'a,T>)->Matrix<T>
 where
 T:Num,
 T:Default+'a,
-T:One,
 T:Clone,
 T:Copy,
 T:Debug,
@@ -321,7 +317,6 @@ fn fmt<'a,T:Debug>(this:impl TMatrix<'a,T>, f: &mut fmt::Formatter<'_>) -> fmt::
 where
 T:Num,
 T:Default+'a,
-T:One,
 T:Clone,
 T:Copy,
 T:Debug,
